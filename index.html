@@ -1510,15 +1510,66 @@
 
       <section class="page" id="page-tugasUjian">
         <h1 class="page-heading">Tugas Koreksi Hasil Ujian</h1>
-        <form class="card form-card" id="formTugasUjian"><div class="form-grid">
-          <div class="field"><label>Nama anggota</label><input name="nama" required></div>
-          <div class="field"><label>Tanggal mulai</label><input name="mulai" type="date" required></div>
-          <div class="field"><label>Tanggal selesai</label><input name="selesai" type="date" required></div>
-          <div class="field"><label>Kelas</label><input name="kelas"></div>
-          <div class="field"><label>Tingkat</label><input name="tingkat"></div>
-          <div class="field full"><label>Tugas koreksi ujian</label><textarea name="tugas" required></textarea></div>
-        </div><div class="form-actions"><button class="button">Tambah Tugas</button></div></form>
-        <h2 class="section-title">Daftar Tugas</h2><div id="daftarTugasUjian"></div>
+        <p class="subheading">Penugasan khusus untuk koreksi hasil ujian.</p>
+
+        <form class="card form-card" id="formTugasUjian">
+          <div class="form-grid">
+            <!-- 1. Nama Anggota (Dropdown) -->
+            <div class="field full">
+              <label for="tugasUjianNama">Nama anggota</label>
+              <select id="tugasUjianNama" name="nama" required>
+                <option value="">Pilih nama anggota</option>
+              </select>
+            </div>
+
+            <!-- 2. Tingkat (Dropdown) -->
+            <div class="field">
+              <label for="tugasUjianTingkat">Tingkat</label>
+              <select id="tugasUjianTingkat" name="tingkat" required>
+                <option value="">Pilih tingkatan</option>
+                <option value="IBTIDAIYAH">IBTIDAIYAH</option>
+                <option value="TSANAWIYAH">TSANAWIYAH</option>
+                <option value="IDADIYAH">IDADIYAH</option>
+                <option value="ALIYAH">ALIYAH</option>
+              </select>
+            </div>
+
+            <!-- 3. Kelas (Dropdown) -->
+            <div class="field">
+              <label for="tugasUjianKelas">Kelas</label>
+              <select id="tugasUjianKelas" name="kelas" required>
+                <option value="">Pilih kelas</option>
+              </select>
+            </div>
+
+            <!-- 4. Fan / Materi (Dropdown) -->
+            <div class="field full">
+              <label for="tugasUjianTugas">Fan/Nama Materi Ujian</label>
+              <select id="tugasUjianTugas" name="tugas" required>
+                <option value="">Pilih Fan/Materi</option>
+              </select>
+            </div>
+
+            <!-- 5. Tanggal Mulai -->
+            <div class="field">
+              <label for="tugasUjianMulai">Tanggal mulai</label>
+              <input id="tugasUjianMulai" name="mulai" type="date" required>
+            </div>
+
+            <!-- 6. Tanggal Selesai -->
+            <div class="field">
+              <label for="tugasUjianSelesai">Tanggal selesai</label>
+              <input id="tugasUjianSelesai" name="selesai" type="date" required>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="button" type="submit">Tambah Tugas Ujian</button>
+          </div>
+        </form>
+
+        <h2 class="section-title" style="margin-top:24px;">Daftar Tugas Ujian</h2>
+        <div id="daftarTugasUjian"></div>
       </section>
 
       <section class="page" id="page-rekapUjian">
