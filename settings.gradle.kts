@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AplikasiPribadi"
+rootProject.name = "LABSOMA"
 include(":app")
