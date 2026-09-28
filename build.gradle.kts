@@ -23,8 +23,9 @@ configure<BaseAppModuleExtension> {
     sourceSets {
         getByName("main") {
             manifest.srcFile("AndroidManifest.xml")
-            java.srcDirs(".")
-            // Dihapus res.srcDirs(".") untuk menghentikan konflik duplikasi file gambar/asset
+            java.srcDirs(".").apply {
+                exclude("**/*.gradle.kts", "build/**", ".github/**")
+            }
         }
     }
 
