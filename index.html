@@ -1405,41 +1405,53 @@
 
         <form class="card form-card" id="formTugas">
           <div class="form-grid">
+            <!-- 1. Nama Anggota (Dropdown) -->
             <div class="field full">
               <label for="tugasNama">Nama anggota</label>
-              <input id="tugasNama" name="nama" type="text" required>
+              <select id="tugasNama" name="nama" required>
+                <option value="">Pilih nama anggota</option>
+              </select>
             </div>
 
+            <!-- 2. Tingkat (Dropdown) -->
+            <div class="field">
+              <label for="tugasTingkat">Tingkat</label>
+              <select id="tugasTingkat" name="tingkat" required>
+                <option value="">Pilih tingkatan</option>
+                <option value="IBTIDAIYAH">IBTIDAIYAH</option>
+                <option value="TSANAWIYAH">TSANAWIYAH</option>
+                <option value="IDADIYAH">IDADIYAH</option>
+                <option value="ALIYAH">ALIYAH</option>
+              </select>
+            </div>
+
+            <!-- 3. Kelas (Dropdown) -->
+            <div class="field">
+              <label for="tugasKelas">Kelas</label>
+              <select id="tugasKelas" name="kelas" required>
+                <option value="">Pilih kelas</option>
+              </select>
+            </div>
+
+            <!-- 4. Fan / Nama Materi (Dropdown) -->
+            <div class="field full">
+              <label for="tugasNamaTugas">Fan/Nama Materi</label>
+              <select id="tugasNamaTugas" name="tugas" required>
+                <option value="">Pilih Fan/Materi</option>
+              </select>
+            </div>
+
+            <!-- 5. Tanggal Mulai -->
             <div class="field">
               <label for="tugasMulai">Tanggal mulai</label>
               <input id="tugasMulai" name="mulai" type="date" required>
             </div>
 
+            <!-- 6. Tanggal Selesai -->
             <div class="field">
               <label for="tugasSelesai">Tanggal selesai</label>
               <input id="tugasSelesai" name="selesai" type="date" required>
             </div>
-
-            <div class="field">
-              <label for="tugasKelas">Kelas</label>
-              <input id="tugasKelas" name="kelas" type="text" placeholder="Contoh: Kelas 3">
-            </div>
-
-            <div class="field">
-              <label for="tugasTingkat">Tingkat</label>
-              <input id="tugasTingkat" name="tingkat" type="text" placeholder="Contoh: SD">
-            </div>
-
-            <div class="field full">
-              <label for="tugasNamaTugas">Tugas/soal</label>
-              <textarea id="tugasNamaTugas" name="tugas" required></textarea>
-            </div>
-            <div class="field full"><label for="tugasNama">Nama anggota</label><select id="tugasNama" name="nama" required><option value="">Pilih nama anggota</option></select></div>
-            <div class="field"><label for="tugasTingkat">Tingkat</label><select id="tugasTingkat" name="tingkat" required><option value="">Pilih tingkatan</option><option>IBTIDAIYAH</option><option>TSANAWIYAH</option><option>IDADIYAH</option><option>ALIYAH</option></select></div>
-            <div class="field"><label for="tugasKelas">Kelas</label><select id="tugasKelas" name="kelas" required><option value="">Pilih kelas</option></select></div>
-            <div class="field full"><label for="tugasNamaTugas">Fan/Nama Materi</label><select id="tugasNamaTugas" name="tugas" required><option value="">Pilih Fan/Materi</option></select></div>
-            <div class="field"><label for="tugasMulai">Tanggal mulai</label><input id="tugasMulai" name="mulai" type="date" required></div>
-            <div class="field"><label for="tugasSelesai">Tanggal selesai</label><input id="tugasSelesai" name="selesai" type="date" required></div>
           </div>
 
           <div class="form-actions">
