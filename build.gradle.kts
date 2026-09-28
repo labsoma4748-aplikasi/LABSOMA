@@ -20,6 +20,14 @@ configure<BaseAppModuleExtension> {
         buildConfigField("String", "APP_URL", "\"$appUrl\"")
     }
 
+    sourceSets {
+        getByName("main") {
+            manifest.srcFile("AndroidManifest.xml")
+            java.srcDirs(".")
+            res.srcDirs(".")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
