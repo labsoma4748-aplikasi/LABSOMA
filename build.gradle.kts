@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
+
 plugins {
     id("com.android.application") version "8.1.1"
     id("org.jetbrains.kotlin.android") version "1.9.0"
@@ -5,7 +7,7 @@ plugins {
 
 val appUrl = "https://script.google.com/macros/s/AKfycbx7KU5Qd0lJ1PIKLwGW0pehL394vXeo8_KGMVynjfbpGGvsvS8OXe3F2_eizPu_UrBc/exec"
 
-android {
+configure<BaseAppModuleExtension> {
     namespace = "com.pribadi.webview"
     compileSdk = 35
 
@@ -21,10 +23,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     buildFeatures {
