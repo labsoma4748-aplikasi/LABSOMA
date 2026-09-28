@@ -1934,21 +1934,72 @@
       'Halaman ' + (indeksSlideAgenda + 1) + ' dari ' + totalSlide;
   }
 
+  let timerAgendaDashboard = null;
+
+  async function jalankanOtomasisSlideAgenda() {
+    const totalSlide = 1 + pengumumanDashboard.length;
+    if (totalSlide <= 0) return;
+
+    // 1. Tampilkan slide saat ini
+    gambarSlideAgendaDashboard();
+
+    // 2. Cari kontainer yang sedang aktif untuk di-scroll
+    let wadahAktif = null;
+    if (indeksSlideAgenda === 0) {
+      // Pada slide agenda, cek kedua panel agenda (Hari Ini & Rentang)
+      const panel1 = document.querySelector('#dashboardAgendaSlide .agenda-panel:nth-child(1)');
+      const panel2 = document.querySelector('#dashboardAgendaSlide .agenda-panel:nth-child(2)');
+      
+      // Pilih panel yang memiliki scroll terbanyak/paling panjang
+      if (panel1 && panel1.scrollHeight > panel1.clientHeight) wadahAktif = panel1;
+      if (panel2 && panel2.scrollHeight > panel2.clientHeight && (!wadahAktif || panel2.scrollHeight > wadahAktif.scrollHeight)) {
+        wadahAktif = panel2;
+      }
+    } else {
+      // Pada slide pengumuman
+      wadahAktif = document.getElementById('dashboardPengumumanSlide');
+    }
+
+    // Reset posisi scroll ke atas terlebih dahulu
+    if (wadahAktif) wadahAktif.scrollTop = 0;
+
+    // 3. Efek Gulir Halus (Auto Scroll Slow & Smooth)
+    if (wadahAktif && wadahAktif.scrollHeight > wadahAktif.clientHeight) {
+      // Beri sedikit jeda awal sebelum mulai scroll
+      await new Promise(r => setTimeout(r, 1000));
+
+      // Kecepatan gulir (makin kecil nilai px, makin halus dan pelan)
+      const kecepatanPixel = 1; 
+      const intervalWaktu = 30; // ms
+
+      await new Promise(resolve => {
+        const timerScroll = setInterval(() => {
+          // Jika sudah mencapai batas bawah
+          if (Math.ceil(wadahAktif.scrollTop + wadahAktif.clientHeight) >= wadahAktif.scrollHeight) {
+            clearInterval(timerScroll);
+            resolve();
+          } else {
+            wadahAktif.scrollTop += kecepatanPixel;
+          }
+        }, intervalWaktu);
+      });
+    }
+
+    // 4. Setelah selesai scroll (atau jika konten pendek), hitung jeda 5 detik
+    await new Promise(r => setTimeout(r, 5000));
+
+    // 5. Lanjut ke slide berikutnya
+    indeksSlideAgenda = (indeksSlideAgenda + 1) % totalSlide;
+    jalankanOtomasisSlideAgenda();
+  }
+
   function mulaiSlideAgendaDashboard() {
     if (timerAgendaDashboard) {
-      clearInterval(timerAgendaDashboard);
+      clearTimeout(timerAgendaDashboard);
     }
 
     indeksSlideAgenda = 0;
-    gambarSlideAgendaDashboard();
-
-    if (pengumumanDashboard.length) {
-      timerAgendaDashboard = setInterval(function() {
-        indeksSlideAgenda =
-          (indeksSlideAgenda + 1) % (1 + pengumumanDashboard.length);
-        gambarSlideAgendaDashboard();
-      }, INTERVAL_GANTI_ANGGOTA);
-    }
+    jalankanOtomasisSlideAgenda();
   }
 
   function tampilkanDaftarEditPengumuman(daftar) {
