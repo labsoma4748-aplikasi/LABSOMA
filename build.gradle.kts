@@ -24,7 +24,7 @@ configure<BaseAppModuleExtension> {
         getByName("main") {
             manifest.srcFile("AndroidManifest.xml")
             java.srcDirs(".")
-            res.srcDirs(".")
+            // Dihapus res.srcDirs(".") untuk menghentikan konflik duplikasi file gambar/asset
         }
     }
 
