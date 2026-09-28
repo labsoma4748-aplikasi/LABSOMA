@@ -2141,21 +2141,83 @@
     document.getElementById('daftarRekapUjian').innerHTML=renderTabel(['Anggota','Tugas Koreksi Ujian','Kelas','Tingkat','Tanggal tugas','Selesai dikerjakan'],rekapUjian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+formatTanggal(x.tanggalSelesaiPengerjaan)+'</td></tr>';}));
   }
 
-  function isiPilihanTugas(anggota,materi) {
-    const nama=document.getElementById('tugasNama'), namaLama=nama.value;
-    nama.innerHTML='<option value="">Pilih nama anggota</option>'+anggota.map(function(x){return '<option>'+aman(x)+'</option>';}).join('');
-    if(anggota.indexOf(namaLama)>=0)nama.value=namaLama;
-    const tingkat=document.getElementById('tugasTingkat').value;
-    const data=materi.filter(function(x){return norm(x.tingkat)===norm(tingkat);});
-    const kelas=document.getElementById('tugasKelas'),fan=document.getElementById('tugasNamaTugas');
-    const kelasSebelum=kelas.value,fanSebelum=fan.value;
-    const kelasList=[...new Set(data.map(function(x){return x.kelas;}).filter(Boolean))];
-    const fanList=[...new Set(data.map(function(x){return x.materi||x.kelas;}).filter(Boolean))];
-    kelas.innerHTML='<option value="">Pilih kelas</option>'+kelasList.map(function(x){return '<option>'+aman(x)+'</option>';}).join('');
-    fan.innerHTML='<option value="">Pilih Fan/Materi</option>'+fanList.map(function(x){return '<option>'+aman(x)+'</option>';}).join('');
-    if(kelasList.indexOf(kelasSebelum)>=0)kelas.value=kelasSebelum;
-    if(fanList.indexOf(fanSebelum)>=0)fan.value=fanSebelum;
+  /* OTOMASI PANGGILAN DROPDOWN NAMA, TINGKAT, KELAS, DAN FAN UNTUK PEMBUATAN SOAL & KOREKSI UJIAN */
+  function isiPilihanTugas(anggota, materi) {
+    // 1. Pilihan Nama Anggota (Pembuatan Soal & Koreksi Ujian)
+    ['tugasNama', 'tugasUjianNama'].forEach(function(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        const valLama = el.value;
+        el.innerHTML = '<option value="">Pilih nama anggota</option>' +
+          (anggota || []).map(function(x) {
+            return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
+          }).join('');
+        if (anggota && anggota.indexOf(valLama) >= 0) el.value = valLama;
+      }
+    });
+
+    // 2. Filter & Opsi Kelas/Materi Pembuatan Soal
+    updateMateriDropdown('tugasTingkat', 'tugasKelas', 'tugasNamaTugas', materi);
+
+    // 3. Filter & Opsi Kelas/Materi Koreksi Hasil Ujian
+    updateMateriDropdown('tugasUjianTingkat', 'tugasUjianKelas', 'tugasUjianTugas', materi);
   }
+
+  function updateMateriDropdown(idTingkat, idKelas, idFan, materi) {
+    const elTingkat = document.getElementById(idTingkat);
+    const elKelas = document.getElementById(idKelas);
+    const elFan = document.getElementById(idFan);
+
+    if (!elTingkat || !elKelas || !elFan) return;
+
+    const tingkatVal = norm(elTingkat.value);
+    const dataFiltered = (materi || []).filter(function(x) {
+      return norm(x.tingkat) === tingkatVal;
+    });
+
+    // Populate Kelas
+    const kelasSebelum = elKelas.value;
+    const kelasList = [...new Set(dataFiltered.map(function(x) { return x.kelas; }).filter(Boolean))];
+
+    elKelas.innerHTML = '<option value="">Pilih kelas</option>' +
+      kelasList.map(function(x) {
+        return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
+      }).join('');
+    if (kelasList.indexOf(kelasSebelum) >= 0) elKelas.value = kelasSebelum;
+
+    // Populate Fan/Materi
+    const kelasVal = norm(elKelas.value);
+    let fanData = dataFiltered;
+    if (kelasVal) {
+      fanData = dataFiltered.filter(function(x) { return norm(x.kelas) === kelasVal; });
+    }
+
+    const fanSebelum = elFan.value;
+    const fanList = [...new Set(fanData.map(function(x) { return x.materi || x.kelas; }).filter(Boolean))];
+
+    elFan.innerHTML = '<option value="">Pilih Fan/Materi</option>' +
+      fanList.map(function(x) {
+        return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
+      }).join('');
+    if (fanList.indexOf(fanSebelum) >= 0) elFan.value = fanSebelum;
+  }
+
+  // Event Listener Pembuatan Soal
+  document.getElementById('tugasTingkat').addEventListener('change', function() {
+    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
+  });
+  document.getElementById('tugasKelas').addEventListener('change', function() {
+    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
+  });
+
+  // Event Listener Koreksi Hasil Ujian
+  document.getElementById('tugasUjianTingkat').addEventListener('change', function() {
+    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
+  });
+  document.getElementById('tugasUjianKelas').addEventListener('change', function() {
+    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
+  });
+
   function norm(x){return String(x||'').trim().toLocaleUpperCase('id');}
   document.getElementById('tugasTingkat').addEventListener('change',function(){isiPilihanTugas((dataAplikasiTersimpan||{}).dataAnggota||[],(dataAplikasiTersimpan||{}).materiPelajaran||[]);});
 
