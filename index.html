@@ -2134,9 +2134,9 @@
     document.getElementById('daftarRekapUjian').innerHTML=renderTabel(['Anggota','Tugas Koreksi Ujian','Kelas','Tingkat','Tanggal tugas','Selesai dikerjakan'],rekapUjian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+formatTanggal(x.tanggalSelesaiPengerjaan)+'</td></tr>';}));
   }
 
-  /* OTOMASI PANGGILAN DROPDOWN NAMA, TINGKAT, KELAS, DAN FAN */
+  /* OTOMASI PANGGILAN DROPDOWN NAMA, TINGKAT, KELAS, DAN FAN UNTUK PEMBUATAN SOAL & KOREKSI UJIAN */
   function isiPilihanTugas(anggota, materi) {
-    // 1. Langsung isi opsi nama anggota ke KEDUA form (Pembuatan Soal & Koreksi Hasil Ujian)
+    // 1. Pilihan Nama Anggota (Pembuatan Soal & Koreksi Ujian)
     ['tugasNama', 'tugasUjianNama'].forEach(function(id) {
       const el = document.getElementById(id);
       if (el) {
@@ -2145,18 +2145,9 @@
           (anggota || []).map(function(x) {
             return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
           }).join('');
-        if (anggota && anggota.indexOf(valLama) >= 0) {
-          el.value = valLama;
-        }
+        if (anggota && anggota.indexOf(valLama) >= 0) el.value = valLama;
       }
     });
-
-    // 2. Perbarui pilihan Tingkat/Kelas/Fan untuk Pembuatan Soal
-    updateMateriDropdown('tugasTingkat', 'tugasKelas', 'tugasNamaTugas', materi);
-
-    // 3. Perbarui pilihan Tingkat/Kelas/Fan untuk Koreksi Hasil Ujian
-    updateMateriDropdown('tugasUjianTingkat', 'tugasUjianKelas', 'tugasUjianTugas', materi);
-  }
 
     // 2. Filter & Opsi Kelas/Materi Pembuatan Soal
     updateMateriDropdown('tugasTingkat', 'tugasKelas', 'tugasNamaTugas', materi);
