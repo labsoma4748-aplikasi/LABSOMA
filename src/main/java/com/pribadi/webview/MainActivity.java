@@ -21,6 +21,6 @@ public class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient());
 
         String appUrl = "https://script.google.com/macros/s/AKfycbx7KU5Qd0lJ1PIKLwGW0pehL394vXeo8_KGMVynjfbpGGvsvS8OXe3F2_eizPu_UrBc/exec";
-        webView.loadUrl(appUrl);
+        webView.loadUrl("file:///android_asset/index.html");
     }
 }
