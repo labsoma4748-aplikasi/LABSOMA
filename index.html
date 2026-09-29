@@ -1540,21 +1540,16 @@
 
       <section class="page" id="page-koreksiBersama">
         <h1 class="page-heading">Koreksi Bersama</h1>
-        <p class="subheading">Tugas ini dikerjakan bersama; IBT dan TS dipilih pada kolom Tingkat.</p>
-        <form class="card form-card" id="formKoreksiBersama"><div class="form-grid">
-          <div class="field"><label>Tanggal mulai</label><input name="mulai" type="date" required></div>
-          <div class="field"><label>Tanggal selesai</label><input name="selesai" type="date" required></div>
-          <div class="field"><label>Kelas</label><input name="kelas"></div>
-          <div class="field"><label>Tingkat</label><select name="tingkat" required><option value="">Pilih tingkat</option><option>IBT</option><option>TS</option></select></div>
-          <div class="field full"><label>Tugas/koreksi</label><textarea name="tugas" required></textarea></div>
-        </div><div class="form-actions"><button class="button">Simpan Tugas</button></div></form>
-        <div id="daftarKoreksiBersama"></div>
-        <p class="subheading">Antrean lanjutan tugas yang sudah dikoreksi oleh Korektor 2.</p>
+        <p class="subheading">Antrean lanjutan tugas yang sudah selesai dikoreksi oleh Korektor 2.</p>
+
+        <!-- FITUR PENCARIAN ANTREAN KOREKSI BERSAMA -->
         <div class="search-filters">
           <input type="search" data-filter-group="kb" data-filter-key="tugas" placeholder="Cari tugas/soal…">
           <input type="search" data-filter-group="kb" data-filter-key="kelas" placeholder="Cari kelas…">
           <input type="search" data-filter-group="kb" data-filter-key="tingkat" placeholder="Cari tingkat…">
         </div>
+
+        <!-- TABEL ANTREAN KOREKSI BERSAMA -->
         <div id="isiKoreksiBersama"></div>
       </section>
 
