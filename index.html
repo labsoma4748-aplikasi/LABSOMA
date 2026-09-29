@@ -938,112 +938,15 @@
       .member-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
-      /* ==========================================
-       TAMPILAN KHUSUS HP (SHOPEE MOBILE STYLE)
-       ========================================== */
     @media (max-width: 700px) {
-      body {
-        padding-bottom: 68px; /* Ruang untuk Bottom Nav menempel di bawah */
-        background: #f4f6f9;
-      }
+      .app { display: block; }
 
-      /* Sembunyikan Sidebar Bawaan Desktop di Layar HP */
       .sidebar {
-        display: none !important;
-      }
-
-      .main {
-        padding: 10px 10px 80px 10px;
-      }
-
-      /* Header Atas Ringkas Ala Shopee */
-      .topbar {
-        position: sticky;
-        top: 0;
-        z-index: 800;
-        background: var(--panel);
-        padding: 8px 12px;
-        margin: -10px -10px 12px -10px;
+        width: 100%;
+        padding: 9px;
+        border-right: 0;
         border-bottom: 1px solid var(--garis);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       }
-
-      /* Kartu Dashboard & Tugas Ala Shopee Card */
-      .card, .member-card, .summary-card {
-        border-radius: 12px !important;
-        border: 1px solid rgba(0,0,0,0.06);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-        margin-bottom: 10px;
-      }
-
-      .member-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 8px !important;
-      }
-
-      .member-card {
-        min-height: auto !important;
-        padding: 10px !important;
-      }
-
-      .member-name {
-        font-size: 14px !important;
-        min-height: auto !important;
-        border-bottom: 1px dashed var(--garis);
-      }
-
-      /* Bottom Navigation Bar Menempel di Bawah HP (Ala Shopee) */
-      .shopee-bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
-        background: var(--panel);
-        border-top: 1px solid var(--garis);
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        z-index: 1000;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      }
-
-      .shopee-nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-        height: 100%;
-        background: transparent;
-        border: none;
-        color: var(--redup);
-        font-size: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 4px 0;
-      }
-
-      .shopee-nav-item .nav-icon {
-        font-size: 18px;
-        margin-bottom: 2px;
-      }
-
-      .shopee-nav-item.active {
-        color: var(--aksen);
-        font-weight: 700;
-      }
-
-      /* Tabel & Form Penyesuaian HP */
-      .search-filters {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 6px !important;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr !important;
-      }
-    }
 
       body.sidebar-hidden .sidebar,
       body.dashboard-fullscreen .sidebar {
@@ -1674,38 +1577,6 @@
         <div id="daftarRekapUjian"></div>
       </section>
     </main>
-    
-    <nav class="shopee-bottom-nav">
-      <button class="shopee-nav-item active" data-page="dashboard">
-        <span class="nav-icon">🏠</span>
-        <span>Beranda</span>
-      </button>
-
-      <button class="shopee-nav-item" data-page="tugas">
-        <span class="nav-icon">📝</span>
-        <span>Tugas</span>
-      </button>
-
-      <button class="shopee-nav-item" data-page="rekap">
-        <span class="nav-icon">📊</span>
-        <span>Rekap</span>
-      </button>
-
-      <button class="shopee-nav-item" data-page="rapat">
-        <span class="nav-icon">👥</span>
-        <span>Rapat</span>
-      </button>
-
-      <button class="shopee-nav-item" data-page="pengumuman">
-        <span class="nav-icon">🔔</span>
-        <span>Info</span>
-      </button>
-    </nav>
-
-  </div> <!-- Tag penutup dari <div class="app"> -->
-
-  <div class="toast-area" id="toastArea" aria-live="polite"></div>
-
   </div>
 
   <div class="toast-area" id="toastArea" aria-live="polite"></div>
@@ -1964,13 +1835,7 @@
       page.classList.toggle('active', page.id === 'page-' + nama);
     });
 
-    // Perbarui status aktif tombol sidebar desktop
     document.querySelectorAll('.nav-button').forEach(function(button) {
-      button.classList.toggle('active', button.dataset.page === nama);
-    });
-
-    // Perbarui status aktif tombol bottom nav HP
-    document.querySelectorAll('.shopee-nav-item').forEach(function(button) {
       button.classList.toggle('active', button.dataset.page === nama);
     });
   }
@@ -3374,33 +3239,6 @@
       }
     }
   });
-  // Handle Klik Navigasi Bawah HP Ala Shopee
-  document.querySelectorAll('.shopee-nav-item').forEach(function(button) {
-    button.addEventListener('click', function() {
-      const pageName = button.dataset.page;
-      
-      // Buka Halaman
-      bukaHalaman(pageName);
-
-      // Atur Status Aktif Tombol Navigasi Bawah
-      document.querySelectorAll('.shopee-nav-item').forEach(function(btn) {
-        btn.classList.toggle('active', btn.dataset.page === pageName);
-      });
-    });
-  });
-
-  // TAMBATAN UTAMA PADA SAAT APLIKASI DI-LOAD
-  document.getElementById('agendaTanggal').value = tanggalHariIniLokal();
-  document.getElementById('tugasMulai').value = tanggalHariIniLokal();
-  document.getElementById('tugasSelesai').value = tanggalHariIniLokal();
-
-  perbaruiJamDashboard();
-  perbaruiHeaderPengumuman();
-  muatAplikasi();
-
-  setInterval(perbaruiJamDashboard, 1000);
-  setInterval(perbaruiHeaderPengumuman, 1000);
-  setInterval(muatAplikasi, 60000);
 </script>
 </body>
 </html>
