@@ -1,35 +1,27 @@
 package com.pribadi.webview
 
 import android.os.Bundle
-import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : Activity() {
-    private lateinit var webView: WebView
-
-    @Suppress("SetJavaScriptEnabled")
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        webView = WebView(this)
+
+        val webView = WebView(this)
         setContentView(webView)
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
+
+        val webSettings: WebSettings = webView.settings
+        webSettings.javaScriptEnabled = true
+        webSettings.domStorageEnabled = true
+        webSettings.databaseEnabled = true
+
         webView.webViewClient = WebViewClient()
-        webView.webChromeClient = WebChromeClient()
-        if (savedInstanceState == null) webView.loadUrl(BuildConfig.APP_URL)
-        else webView.restoreState(savedInstanceState)
-    }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        webView.saveState(outState)
-        super.onSaveInstanceState(outState)
-    }
-
-    @Deprecated("Deprecated in Android, retained for back navigation")
-    override fun onBackPressed() {
-        if (this::webView.isInitialized && webView.canGoBack()) webView.goBack()
-        else super.onBackPressed()
+        // Mengambil URL yang ada pada build.gradle.kts (APP_URL)
+        val appUrl = BuildConfig.APP_URL
+        webView.loadUrl(appUrl)
     }
 }
