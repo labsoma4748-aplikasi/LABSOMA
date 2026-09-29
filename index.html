@@ -740,7 +740,7 @@
       font-size: 13px;
     }
 
-    .field input, .field textarea {
+    .field input, .field textarea, .field select {
       width: 100%;
       padding: 11px 12px;
       border: 1px solid var(--garis);
@@ -750,7 +750,7 @@
       color: var(--teks);
     }
 
-    .field input:focus, .field textarea:focus {
+    .field input:focus, .field textarea:focus, .field select:focus {
       border-color: var(--aksen);
     }
 
@@ -1055,7 +1055,7 @@
     .rapat-roster-item input {
       width: auto;
     }
-    /* Cegah seluruh halaman melebar ke samping */
+
     html,
     body {
       width: 100%;
@@ -1076,7 +1076,6 @@
       overflow-x: hidden;
     }
 
-    /* Di HP, batasi lebar halaman ke lebar layar */
     @media (max-width: 700px) {
       .app {
         display: block;
@@ -1101,7 +1100,6 @@
         max-width: 100%;
       }
 
-      /* Bagian yang terlalu lebar, seperti tabel, tetap bisa digeser ke samping */
       .table-wrap {
         width: 100%;
         max-width: 100%;
@@ -1399,13 +1397,14 @@
         </form>
       </section>
 
+      <!-- MENU TAMBAH TUGAS (SATU FORMULIR RAPI & OTOMATIS) -->
       <section class="page" id="page-tugas">
         <h1 class="page-heading">Tambah Tugas</h1>
         <p class="subheading">Tugas juga disimpan ke tab Tugas di spreadsheet.</p>
 
+        <!-- FORMULIR INPUT TAMBAH TUGAS -->
         <form class="card form-card" id="formTugas">
           <div class="form-grid">
-            <!-- 1. Nama Anggota (Dropdown) -->
             <div class="field full">
               <label for="tugasNama">Nama anggota</label>
               <select id="tugasNama" name="nama" required>
@@ -1413,7 +1412,6 @@
               </select>
             </div>
 
-            <!-- 2. Tingkat (Dropdown) -->
             <div class="field">
               <label for="tugasTingkat">Tingkat</label>
               <select id="tugasTingkat" name="tingkat" required>
@@ -1425,7 +1423,6 @@
               </select>
             </div>
 
-            <!-- 3. Kelas (Dropdown) -->
             <div class="field">
               <label for="tugasKelas">Kelas</label>
               <select id="tugasKelas" name="kelas" required>
@@ -1433,7 +1430,6 @@
               </select>
             </div>
 
-            <!-- 4. Fan / Nama Materi (Dropdown) -->
             <div class="field full">
               <label for="tugasNamaTugas">Fan/Nama Materi</label>
               <select id="tugasNamaTugas" name="tugas" required>
@@ -1441,13 +1437,11 @@
               </select>
             </div>
 
-            <!-- 5. Tanggal Mulai -->
             <div class="field">
               <label for="tugasMulai">Tanggal mulai</label>
               <input id="tugasMulai" name="mulai" type="date" required>
             </div>
 
-            <!-- 6. Tanggal Selesai -->
             <div class="field">
               <label for="tugasSelesai">Tanggal selesai</label>
               <input id="tugasSelesai" name="selesai" type="date" required>
@@ -1459,7 +1453,63 @@
             <span class="message" id="pesanTugas"></span>
           </div>
         </form>
+
+        <!-- DAFTAR SEMUA TUGAS + FITUR PENCARIAN & EDIT -->
+        <h2 class="section-title" style="margin-top: 28px;">Daftar Semua Tugas</h2>
+        
+        <div class="search-filters">
+          <input type="search" id="filterTugasNama" data-filter-group="tugasMenu" data-filter-key="nama" placeholder="Cari nama anggota…">
+          <input type="search" id="filterTugasMateri" data-filter-group="tugasMenu" data-filter-key="tugas" placeholder="Cari tugas/soal…">
+          <input type="search" id="filterTugasKelas" data-filter-group="tugasMenu" data-filter-key="kelas" placeholder="Cari kelas…">
+          <input type="search" id="filterTugasTingkat" data-filter-group="tugasMenu" data-filter-key="tingkat" placeholder="Cari tingkat…">
+        </div>
+
+        <div id="daftarTugasDalamMenu"></div>
       </section>
+
+      <!-- MODAL POPUP EDIT TUGAS -->
+      <div class="modal-overlay" id="editTugasOverlay" hidden>
+        <form class="modal" id="formEditTugas" style="width: min(550px, 100%);">
+          <h2>Edit Tugas / Soal</h2>
+          <input id="editTugasRow" type="hidden">
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+            <div class="field full">
+              <label for="editTugasNama">Nama Anggota</label>
+              <select id="editTugasNama" name="nama" required></select>
+            </div>
+            <div class="field">
+              <label for="editTugasTingkat">Tingkat</label>
+              <select id="editTugasTingkat" name="tingkat" required>
+                <option value="">Pilih tingkatan</option>
+                <option value="IBTIDAIYAH">IBTIDAIYAH</option>
+                <option value="TSANAWIYAH">TSANAWIYAH</option>
+                <option value="IDADIYAH">IDADIYAH</option>
+                <option value="ALIYAH">ALIYAH</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="editTugasKelas">Kelas</label>
+              <select id="editTugasKelas" name="kelas" required></select>
+            </div>
+            <div class="field full">
+              <label for="editTugasNamaTugas">Fan / Nama Materi</label>
+              <select id="editTugasNamaTugas" name="tugas" required></select>
+            </div>
+            <div class="field">
+              <label for="editTugasMulai">Tanggal Mulai</label>
+              <input id="editTugasMulai" name="mulai" type="date" required>
+            </div>
+            <div class="field">
+              <label for="editTugasSelesai">Tanggal Selesai</label>
+              <input id="editTugasSelesai" name="selesai" type="date" required>
+            </div>
+          </div>
+          <div class="modal-actions" style="margin-top:16px;">
+            <button class="button secondary" type="button" id="batalEditTugas">Batal</button>
+            <button class="button" type="submit">Simpan Perubahan</button>
+          </div>
+        </form>
+      </div>
 
       <section class="page" id="page-catatan">
         <h1 class="page-heading">Catatan Rapat</h1>
@@ -1490,79 +1540,35 @@
 
       <section class="page" id="page-koreksiBersama">
         <h1 class="page-heading">Koreksi Bersama</h1>
+        <p class="subheading">Tugas ini dikerjakan bersama; IBT dan TS dipilih pada kolom Tingkat.</p>
+        <form class="card form-card" id="formKoreksiBersama"><div class="form-grid">
+          <div class="field"><label>Tanggal mulai</label><input name="mulai" type="date" required></div>
+          <div class="field"><label>Tanggal selesai</label><input name="selesai" type="date" required></div>
+          <div class="field"><label>Kelas</label><input name="kelas"></div>
+          <div class="field"><label>Tingkat</label><select name="tingkat" required><option value="">Pilih tingkat</option><option>IBT</option><option>TS</option></select></div>
+          <div class="field full"><label>Tugas/koreksi</label><textarea name="tugas" required></textarea></div>
+        </div><div class="form-actions"><button class="button">Simpan Tugas</button></div></form>
+        <div id="daftarKoreksiBersama"></div>
         <p class="subheading">Antrean lanjutan tugas yang sudah dikoreksi oleh Korektor 2.</p>
-
         <div class="search-filters">
           <input type="search" data-filter-group="kb" data-filter-key="tugas" placeholder="Cari tugas/soal…">
           <input type="search" data-filter-group="kb" data-filter-key="kelas" placeholder="Cari kelas…">
           <input type="search" data-filter-group="kb" data-filter-key="tingkat" placeholder="Cari tingkat…">
         </div>
-
         <div id="isiKoreksiBersama"></div>
       </section>
 
       <section class="page" id="page-tugasUjian">
         <h1 class="page-heading">Tugas Koreksi Hasil Ujian</h1>
-        <p class="subheading">Penugasan khusus untuk koreksi hasil ujian.</p>
-
-        <form class="card form-card" id="formTugasUjian">
-          <div class="form-grid">
-            <!-- 1. Nama Anggota (Dropdown) -->
-            <div class="field full">
-              <label for="tugasUjianNama">Nama anggota</label>
-              <select id="tugasUjianNama" name="nama" required>
-                <option value="">Pilih nama anggota</option>
-              </select>
-            </div>
-
-            <!-- 2. Tingkat (Dropdown) -->
-            <div class="field">
-              <label for="tugasUjianTingkat">Tingkat</label>
-              <select id="tugasUjianTingkat" name="tingkat" required>
-                <option value="">Pilih tingkatan</option>
-                <option value="IBTIDAIYAH">IBTIDAIYAH</option>
-                <option value="TSANAWIYAH">TSANAWIYAH</option>
-                <option value="IDADIYAH">IDADIYAH</option>
-                <option value="ALIYAH">ALIYAH</option>
-              </select>
-            </div>
-
-            <!-- 3. Kelas (Dropdown) -->
-            <div class="field">
-              <label for="tugasUjianKelas">Kelas</label>
-              <select id="tugasUjianKelas" name="kelas" required>
-                <option value="">Pilih kelas</option>
-              </select>
-            </div>
-
-            <!-- 4. Fan / Materi (Dropdown) -->
-            <div class="field full">
-              <label for="tugasUjianTugas">Fan/Nama Materi Ujian</label>
-              <select id="tugasUjianTugas" name="tugas" required>
-                <option value="">Pilih Fan/Materi</option>
-              </select>
-            </div>
-
-            <!-- 5. Tanggal Mulai -->
-            <div class="field">
-              <label for="tugasUjianMulai">Tanggal mulai</label>
-              <input id="tugasUjianMulai" name="mulai" type="date" required>
-            </div>
-
-            <!-- 6. Tanggal Selesai -->
-            <div class="field">
-              <label for="tugasUjianSelesai">Tanggal selesai</label>
-              <input id="tugasUjianSelesai" name="selesai" type="date" required>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button class="button" type="submit">Tambah Tugas Ujian</button>
-          </div>
-        </form>
-
-        <h2 class="section-title" style="margin-top:24px;">Daftar Tugas Ujian</h2>
-        <div id="daftarTugasUjian"></div>
+        <form class="card form-card" id="formTugasUjian"><div class="form-grid">
+          <div class="field"><label>Nama anggota</label><input name="nama" required></div>
+          <div class="field"><label>Tanggal mulai</label><input name="mulai" type="date" required></div>
+          <div class="field"><label>Tanggal selesai</label><input name="selesai" type="date" required></div>
+          <div class="field"><label>Kelas</label><input name="kelas"></div>
+          <div class="field"><label>Tingkat</label><input name="tingkat"></div>
+          <div class="field full"><label>Tugas koreksi ujian</label><textarea name="tugas" required></textarea></div>
+        </div><div class="form-actions"><button class="button">Tambah Tugas</button></div></form>
+        <h2 class="section-title">Daftar Tugas</h2><div id="daftarTugasUjian"></div>
       </section>
 
       <section class="page" id="page-rekapUjian">
@@ -1588,6 +1594,7 @@
       </div>
     </form>
   </div>
+
   <script>
   const SELISIH_ISTIWAK_MENIT = 39;
   const JUMLAH_ANGGOTA_PER_HALAMAN = 5;
@@ -1615,6 +1622,8 @@
   let dataAplikasiTersimpan = null;
   let bulanKalenderAktif = new Date();
   let rentangAgendaTerpilih = 'pekan';
+
+  function norm(x) { return String(x || '').trim().toLocaleUpperCase('id'); }
 
   function perbaruiHitungMundurSalat() {
     const tampilan = document.getElementById('hitungMundurSalat');
@@ -1836,6 +1845,7 @@
       bukaHalaman(button.dataset.page);
     });
   });
+
   document.querySelectorAll('.nav-group-toggle').forEach(function(button) {
     button.addEventListener('click', function() {
       const submenu=document.getElementById('menu-'+button.dataset.menu);
@@ -1934,99 +1944,21 @@
       'Halaman ' + (indeksSlideAgenda + 1) + ' dari ' + totalSlide;
   }
 
-  let timerSlideAgenda = null;
-  let timerScrollInterval = null;
-  let timerJedaTimeout = null;
-
-  function batalkanSemuaTimerAgenda() {
-    if (timerScrollInterval) {
-      clearInterval(timerScrollInterval);
-      timerScrollInterval = null;
+  function mulaiSlideAgendaDashboard() {
+    if (timerAgendaDashboard) {
+      clearInterval(timerAgendaDashboard);
     }
-    if (timerJedaTimeout) {
-      clearTimeout(timerJedaTimeout);
-      timerJedaTimeout = null;
-    }
-    if (timerSlideAgenda) {
-      clearTimeout(timerSlideAgenda);
-      timerSlideAgenda = null;
-    }
-  }
 
-  function jalankanOtomasisSlideAgenda() {
-    batalkanSemuaTimerAgenda();
-
-    const totalSlide = 1 + (pengumumanDashboard || []).length;
-    if (totalSlide <= 0) return;
-
-    // 1. Tampilkan slide saat ini
+    indeksSlideAgenda = 0;
     gambarSlideAgendaDashboard();
 
-    // Jika hanya ada 1 slide dan tidak ada pengumuman, tidak perlu autoscroll/pindah slide
-    if (totalSlide === 1 && (!pengumumanDashboard || pengumumanDashboard.length === 0)) {
-      return;
+    if (pengumumanDashboard.length) {
+      timerAgendaDashboard = setInterval(function() {
+        indeksSlideAgenda =
+          (indeksSlideAgenda + 1) % (1 + pengumumanDashboard.length);
+        gambarSlideAgendaDashboard();
+      }, INTERVAL_GANTI_ANGGOTA);
     }
-
-    // 2. Cari kontainer yang sedang aktif untuk di-scroll
-    let wadahAktif = null;
-    if (indeksSlideAgenda === 0) {
-      const panel1 = document.querySelector('#dashboardAgendaSlide .agenda-panel:nth-child(1)');
-      const panel2 = document.querySelector('#dashboardAgendaSlide .agenda-panel:nth-child(2)');
-      
-      if (panel1 && panel1.scrollHeight > panel1.clientHeight) wadahAktif = panel1;
-      if (panel2 && panel2.scrollHeight > panel2.clientHeight && (!wadahAktif || panel2.scrollHeight > wadahAktif.scrollHeight)) {
-        wadahAktif = panel2;
-      }
-    } else {
-      wadahAktif = document.getElementById('dashboardPengumumanSlide');
-    }
-
-    // Reset posisi scroll ke atas
-    if (wadahAktif) wadahAktif.scrollTop = 0;
-
-    const butuhScroll = wadahAktif && (wadahAktif.scrollHeight - wadahAktif.clientHeight > 5);
-
-    const selesaiDanLanjut = function() {
-      // Tunggu jeda 5 detik di posisi paling bawah sebelum pindah slide
-      timerJedaTimeout = setTimeout(function() {
-        indeksSlideAgenda = (indeksSlideAgenda + 1) % totalSlide;
-        jalankanOtomasisSlideAgenda();
-      }, 5000);
-    };
-
-    if (butuhScroll) {
-      // Jeda 1 detik sebelum mulai scroll pelan
-      timerJedaTimeout = setTimeout(function() {
-        const kecepatanPixel = 1;
-        const intervalWaktu = 35; // ms
-
-        timerScrollInterval = setInterval(function() {
-          if (!wadahAktif) {
-            clearInterval(timerScrollInterval);
-            selesaiDanLanjut();
-            return;
-          }
-
-          // Cek apakah sudah menyentuh paling bawah
-          if (Math.ceil(wadahAktif.scrollTop + wadahAktif.clientHeight) >= wadahAktif.scrollHeight - 2) {
-            clearInterval(timerScrollInterval);
-            timerScrollInterval = null;
-            selesaiDanLanjut();
-          } else {
-            wadahAktif.scrollTop += kecepatanPixel;
-          }
-        }, intervalWaktu);
-      }, 1000);
-    } else {
-      // Jika konten pendek, langsung jalankan hitungan 5 detik
-      selesaiDanLanjut();
-    }
-  }
-
-  function mulaiSlideAgendaDashboard() {
-    batalkanSemuaTimerAgenda();
-    indeksSlideAgenda = 0;
-    jalankanOtomasisSlideAgenda();
   }
 
   function tampilkanDaftarEditPengumuman(daftar) {
@@ -2212,85 +2144,67 @@
     document.getElementById('daftarRekapUjian').innerHTML=renderTabel(['Anggota','Tugas Koreksi Ujian','Kelas','Tingkat','Tanggal tugas','Selesai dikerjakan'],rekapUjian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+formatTanggal(x.tanggalSelesaiPengerjaan)+'</td></tr>';}));
   }
 
-  /* OTOMASI PANGGILAN DROPDOWN NAMA, TINGKAT, KELAS, DAN FAN UNTUK PEMBUATAN SOAL & KOREKSI UJIAN */
+  /* OTOMASI PANGGILAN DROPDOWN NAMA, TINGKAT, KELAS, DAN FAN */
   function isiPilihanTugas(anggota, materi) {
-    // 1. Pilihan Nama Anggota (Pembuatan Soal & Koreksi Ujian)
-    ['tugasNama', 'tugasUjianNama'].forEach(function(id) {
-      const el = document.getElementById(id);
-      if (el) {
-        const valLama = el.value;
-        el.innerHTML = '<option value="">Pilih nama anggota</option>' +
-          (anggota || []).map(function(x) {
-            return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
-          }).join('');
-        if (anggota && anggota.indexOf(valLama) >= 0) el.value = valLama;
-      }
-    });
+    const namaSelect = document.getElementById('tugasNama');
+    if (namaSelect) {
+      const namaLama = namaSelect.value;
+      namaSelect.innerHTML = '<option value="">Pilih nama anggota</option>' +
+        (anggota || []).map(function(x) {
+          return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
+        }).join('');
+      if (anggota && anggota.indexOf(namaLama) >= 0) namaSelect.value = namaLama;
+    }
 
-    // 2. Filter & Opsi Kelas/Materi Pembuatan Soal
-    updateMateriDropdown('tugasTingkat', 'tugasKelas', 'tugasNamaTugas', materi);
-
-    // 3. Filter & Opsi Kelas/Materi Koreksi Hasil Ujian
-    updateMateriDropdown('tugasUjianTingkat', 'tugasUjianKelas', 'tugasUjianTugas', materi);
-  }
-
-  function updateMateriDropdown(idTingkat, idKelas, idFan, materi) {
-    const elTingkat = document.getElementById(idTingkat);
-    const elKelas = document.getElementById(idKelas);
-    const elFan = document.getElementById(idFan);
-
-    if (!elTingkat || !elKelas || !elFan) return;
-
-    const tingkatVal = norm(elTingkat.value);
+    const tingkatVal = norm(document.getElementById('tugasTingkat').value);
     const dataFiltered = (materi || []).filter(function(x) {
       return norm(x.tingkat) === tingkatVal;
     });
 
-    // Populate Kelas
-    const kelasSebelum = elKelas.value;
-    const kelasList = [...new Set(dataFiltered.map(function(x) { return x.kelas; }).filter(Boolean))];
+    const kelasSelect = document.getElementById('tugasKelas');
+    if (kelasSelect) {
+      const kelasSebelum = kelasSelect.value;
+      const kelasList = [...new Set(dataFiltered.map(function(x) { return x.kelas; }).filter(Boolean))];
 
-    elKelas.innerHTML = '<option value="">Pilih kelas</option>' +
-      kelasList.map(function(x) {
-        return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
-      }).join('');
-    if (kelasList.indexOf(kelasSebelum) >= 0) elKelas.value = kelasSebelum;
+      kelasSelect.innerHTML = '<option value="">Pilih kelas</option>' +
+        kelasList.map(function(x) {
+          return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
+        }).join('');
+      if (kelasList.indexOf(kelasSebelum) >= 0) kelasSelect.value = kelasSebelum;
+    }
 
-    // Populate Fan/Materi
-    const kelasVal = norm(elKelas.value);
+    const kelasVal = norm(kelasSelect ? kelasSelect.value : '');
     let fanData = dataFiltered;
     if (kelasVal) {
       fanData = dataFiltered.filter(function(x) { return norm(x.kelas) === kelasVal; });
     }
 
-    const fanSebelum = elFan.value;
-    const fanList = [...new Set(fanData.map(function(x) { return x.materi || x.kelas; }).filter(Boolean))];
+    const fanSelect = document.getElementById('tugasNamaTugas');
+    if (fanSelect) {
+      const fanSebelum = fanSelect.value;
+      const fanList = [...new Set(fanData.map(function(x) { return x.materi || x.kelas; }).filter(Boolean))];
 
-    elFan.innerHTML = '<option value="">Pilih Fan/Materi</option>' +
-      fanList.map(function(x) {
-        return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
-      }).join('');
-    if (fanList.indexOf(fanSebelum) >= 0) elFan.value = fanSebelum;
+      fanSelect.innerHTML = '<option value="">Pilih Fan/Materi</option>' +
+        fanList.map(function(x) {
+          return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
+        }).join('');
+      if (fanList.indexOf(fanSebelum) >= 0) fanSelect.value = fanSebelum;
+    }
   }
 
-  // Event Listener Pembuatan Soal
   document.getElementById('tugasTingkat').addEventListener('change', function() {
-    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
+    isiPilihanTugas(
+      (dataAplikasiTersimpan || {}).dataAnggota || [],
+      (dataAplikasiTersimpan || {}).materiPelajaran || []
+    );
   });
+
   document.getElementById('tugasKelas').addEventListener('change', function() {
-    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
+    isiPilihanTugas(
+      (dataAplikasiTersimpan || {}).dataAnggota || [],
+      (dataAplikasiTersimpan || {}).materiPelajaran || []
+    );
   });
-
-  // Event Listener Koreksi Hasil Ujian
-  document.getElementById('tugasUjianTingkat').addEventListener('change', function() {
-    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
-  });
-  document.getElementById('tugasUjianKelas').addEventListener('change', function() {
-    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
-  });
-
-  function norm(x){return String(x||'').trim().toLocaleUpperCase('id');}
-  document.getElementById('tugasTingkat').addEventListener('change',function(){isiPilihanTugas((dataAplikasiTersimpan||{}).dataAnggota||[],(dataAplikasiTersimpan||{}).materiPelajaran||[]);});
 
   function tampilkanAntrianKoreksiBersama(daftar) {
     daftar=saringDaftarTugas(daftar,'kb');
@@ -2309,6 +2223,7 @@
     }
     document.getElementById('gridKalender').innerHTML=html;
   }
+
   document.getElementById('kalenderSebelumnya').addEventListener('click',function(){bulanKalenderAktif.setMonth(bulanKalenderAktif.getMonth()-1);gambarKalender((dataAplikasiTersimpan||{}).kalender||[]);});
   document.getElementById('kalenderBerikutnya').addEventListener('click',function(){bulanKalenderAktif.setMonth(bulanKalenderAktif.getMonth()+1);gambarKalender((dataAplikasiTersimpan||{}).kalender||[]);});
 
@@ -2320,6 +2235,7 @@
   }
   sambungkanFormTambahan('formCatatan','simpanCatatan');
   sambungkanFormTambahan('formKalender','simpanKegiatanKalender');
+  sambungkanFormTambahan('formKoreksiBersama','simpanKoreksiBersama');
   sambungkanFormTambahan('formTugasUjian','simpanTugasKoreksiUjian');
 
   function tampilkanRekap(daftar) {
@@ -2414,7 +2330,7 @@
           <td>
             <button class="button" data-action="k1"
               data-row="${item.nomorBaris}">Tandai sudah dikoreksi</button>
-              <button class="button secondary" data-action="kembaliK1" data-row="${item.nomorBaris}">Kembalikan</button>
+            <button class="button secondary" data-action="kembaliK1" data-row="${item.nomorBaris}">Kembalikan</button>
           </td>
         </tr>
       `;
@@ -2451,7 +2367,7 @@
           <td>
             <button class="button" data-action="k2"
               data-row="${item.nomorBaris}">Tandai sudah dikoreksi</button>
-              <button class="button secondary" data-action="kembaliK2" data-row="${item.nomorBaris}">Kembalikan</button>
+            <button class="button secondary" data-action="kembaliK2" data-row="${item.nomorBaris}">Kembalikan</button>
           </td>
         </tr>
       `;
@@ -2471,7 +2387,8 @@
       rows
     );
   }
-    function tampilkanDaftarRapat(daftar) {
+
+  function tampilkanDaftarRapat(daftar) {
     const target = document.getElementById('daftarRapat');
 
     if (!daftar || daftar.length === 0) {
@@ -3138,6 +3055,109 @@
     document.body.classList.toggle('dashboard-fullscreen', penuh);
     document.getElementById('fullscreenToggle').textContent = penuh ? '↙' : '⛶';
   }
+
+  // Tampilkan daftar semua tugas di menu Tambah Tugas
+  function tampilkanTugasDiMenuTambah(semuaTugas) {
+    const dataFiltered = saringDaftarTugas(semuaTugas, 'tugasMenu');
+
+    const rows = (dataFiltered || []).map(function(item) {
+      return `
+        <tr>
+          <td>${aman(item.nama)}</td>
+          <td>${aman(item.tugas)}</td>
+          <td>${aman(item.kelas || '–')}</td>
+          <td>${aman(item.tingkat || '–')}</td>
+          <td>${formatTanggal(item.mulai)} – ${formatTanggal(item.selesai)}</td>
+          <td>${aman(item.status || 'Belum')}</td>
+          <td>
+            <button class="button secondary small" data-action="editTugas" data-row="${item.nomorBaris}">✎ Edit</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    document.getElementById('daftarTugasDalamMenu').innerHTML = renderTabel(
+      ['Anggota', 'Tugas/Soal', 'Kelas', 'Tingkat', 'Tanggal Tugas', 'Status', 'Aksi'],
+      rows
+    );
+  }
+
+  // Update fungsi muatAplikasi agar memanggil tabel di menu Tambah Tugas
+  // Pastikan di dalam fungsi muatAplikasi() terdapat baris berikut:
+  // tampilkanTugasDiMenuTambah(data.semuaTugas || []);
+
+  // Event Listener Pencarian di Menu Tambah Tugas
+  document.querySelectorAll('[data-filter-group="tugasMenu"]').forEach(function(input) {
+    input.addEventListener('input', function() {
+      tampilkanTugasDiMenuTambah((dataAplikasiTersimpan || {}).semuaTugas || []);
+    });
+  });
+
+  // Handle Klik Tombol Edit
+  document.addEventListener('click', function(event) {
+    const tombol = event.target.closest('[data-action="editTugas"]');
+    if (!tombol) return;
+
+    const nomorBaris = Number(tombol.dataset.row);
+    const semuaTugas = (dataAplikasiTersimpan || {}).semuaTugas || [];
+    const item = semuaTugas.find(x => Number(x.nomorBaris) === nomorBaris);
+
+    if (!item) return;
+
+    document.getElementById('editTugasRow').value = nomorBaris;
+    document.getElementById('editTugasTingkat').value = item.tingkat || '';
+    document.getElementById('editTugasMulai').value = item.mulai || '';
+    document.getElementById('editTugasSelesai').value = item.selesai || '';
+
+    isiPilihanTugasEdit((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || [], item);
+
+    document.getElementById('editTugasOverlay').hidden = false;
+  });
+
+  function isiPilihanTugasEdit(anggota, materi, item) {
+    const namaSelect = document.getElementById('editTugasNama');
+    namaSelect.innerHTML = '<option value="">Pilih nama anggota</option>' +
+      (anggota || []).map(x => `<option value="${aman(x)}">${aman(x)}</option>`).join('');
+    namaSelect.value = item.nama || '';
+
+    updateMateriDropdown('editTugasTingkat', 'editTugasKelas', 'editTugasNamaTugas', materi);
+    
+    document.getElementById('editTugasKelas').value = item.kelas || '';
+    updateMateriDropdown('editTugasTingkat', 'editTugasKelas', 'editTugasNamaTugas', materi);
+    document.getElementById('editTugasNamaTugas').value = item.tugas || '';
+  }
+
+  document.getElementById('editTugasTingkat').addEventListener('change', function() {
+    updateMateriDropdown('editTugasTingkat', 'editTugasKelas', 'editTugasNamaTugas', (dataAplikasiTersimpan || {}).materiPelajaran || []);
+  });
+
+  document.getElementById('editTugasKelas').addEventListener('change', function() {
+    updateMateriDropdown('editTugasTingkat', 'editTugasKelas', 'editTugasNamaTugas', (dataAplikasiTersimpan || {}).materiPelajaran || []);
+  });
+
+  document.getElementById('batalEditTugas').addEventListener('click', function() {
+    document.getElementById('editTugasOverlay').hidden = true;
+  });
+
+  document.getElementById('formEditTugas').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nomorBaris = document.getElementById('editTugasRow').value;
+    const data = Object.fromEntries(new FormData(e.currentTarget).entries());
+
+    mintaPin().then(function(pin) {
+      if (!pin) return;
+      google.script.run
+        .withSuccessHandler(function(pesan) {
+          tampilkanNotifikasi(pesan, 'success');
+          document.getElementById('editTugasOverlay').hidden = true;
+          muatAplikasi();
+        })
+        .withFailureHandler(function(err) {
+          tampilkanNotifikasi(err.message || String(err), 'error');
+        })
+        .editTugas(nomorBaris, data, pin);
+    });
+  });
 
   document.getElementById('fullscreenToggle')
     .addEventListener('click', async function() {
