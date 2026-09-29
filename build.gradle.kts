@@ -23,9 +23,7 @@ configure<BaseAppModuleExtension> {
     sourceSets {
         getByName("main") {
             manifest.srcFile("AndroidManifest.xml")
-            java.srcDirs(".").apply {
-                exclude("**/*.gradle.kts", "build/**", ".github/**")
-            }
+            java.srcDirs(".")
         }
     }
 
