@@ -2230,7 +2230,6 @@
   }
   sambungkanFormTambahan('formCatatan','simpanCatatan');
   sambungkanFormTambahan('formKalender','simpanKegiatanKalender');
-  sambungkanFormTambahan('formKoreksiBersama','simpanKoreksiBersama');
   sambungkanFormTambahan('formTugasUjian','simpanTugasKoreksiUjian');
 
   function tampilkanRekap(daftar) {
@@ -3172,13 +3171,6 @@
   document.getElementById('tugasSelesai').value =
     tanggalHariIniLokal();
 
-  perbaruiJamDashboard();
-  perbaruiHeaderPengumuman();
-  muatAplikasi();
-
-  setInterval(perbaruiJamDashboard, 1000);
-  setInterval(perbaruiHeaderPengumuman, 1000);
-  setInterval(muatAplikasi, 60000);
   // Listener Klik Aksi Edit & Hapus pada Tabel Tugas
   document.addEventListener('click', function(event) {
     const tombolEdit = event.target.closest('[data-action="editTugas"]');
@@ -3271,6 +3263,14 @@
       rows
     );
   }
+  
+  perbaruiJamDashboard();
+  perbaruiHeaderPengumuman();
+  muatAplikasi();
+
+  setInterval(perbaruiJamDashboard, 1000);
+  setInterval(perbaruiHeaderPengumuman, 1000);
+  setInterval(muatAplikasi, 60000);
 </script>
 </body>
 </html>
