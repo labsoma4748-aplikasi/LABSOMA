@@ -3234,6 +3234,43 @@
       }
     }
   });
+
+  // Tampilkan Antrean Tugas Koreksi Bersama dari Korektor 2
+  function tampilkanAntrianKoreksiBersama(daftar) {
+    const dataFiltered = saringDaftarTugas(daftar, 'kb');
+
+    const rows = (dataFiltered || []).map(function(item) {
+      return `
+        <tr>
+          <td>${aman(item.nama)}</td>
+          <td>${aman(item.tugas)}</td>
+          <td>${aman(item.kelas || '–')}</td>
+          <td>${aman(item.tingkat || '–')}</td>
+          <td>${formatTanggal(item.mulai)} – ${formatTanggal(item.selesai)}</td>
+          <td>${formatTanggal(item.tanggalK2)}</td>
+          <td><span class="badge waiting">Menunggu Koreksi Bersama</span></td>
+          <td>
+            <button class="button" data-action="selesaiBersama" data-row="${item.nomorBaris}">Tandai Selesai</button>
+            <button class="button secondary" data-action="kembaliKB" data-row="${item.nomorBaris}">Kembalikan</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    document.getElementById('isiKoreksiBersama').innerHTML = renderTabel(
+      [
+        'Anggota',
+        'Tugas/Soal',
+        'Kelas',
+        'Tingkat',
+        'Tanggal Tugas',
+        'Selesai Korektor 2',
+        'Status',
+        'Aksi'
+      ],
+      rows
+    );
+  }
 </script>
 </body>
 </html>
