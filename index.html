@@ -3060,6 +3060,7 @@
           <td>${aman(item.status || 'Belum')}</td>
           <td>
             <button class="button secondary small" data-action="editTugas" data-row="${item.nomorBaris}">✎ Edit</button>
+            <button class="button small" style="background:#e05252; color:#fff;" data-action="hapusTugas" data-row="${item.nomorBaris}">🗑 Hapus</button>
           </td>
         </tr>
       `;
@@ -3183,6 +3184,61 @@
   setInterval(perbaruiJamDashboard, 1000);
   setInterval(perbaruiHeaderPengumuman, 1000);
   setInterval(muatAplikasi, 60000);
+  // Listener Klik Aksi Edit & Hapus pada Tabel Tugas
+  document.addEventListener('click', function(event) {
+    const tombolEdit = event.target.closest('[data-action="editTugas"]');
+    const tombolHapus = event.target.closest('[data-action="hapusTugas"]');
+
+    // 1. JIKA TOMBOL EDIT DIKLIK
+    if (tombolEdit) {
+      const nomorBaris = Number(tombolEdit.dataset.row);
+      const semuaTugas = (dataAplikasiTersimpan || {}).semuaTugas || [];
+      const item = semuaTugas.find(function(x) { return Number(x.nomorBaris) === nomorBaris; });
+
+      if (!item) return;
+
+      // Mengisi nilai awal ke dalam Modal Popup Edit
+      document.getElementById('editTugasRow').value = nomorBaris;
+      document.getElementById('editTugasMulai').value = item.mulai || '';
+      document.getElementById('editTugasSelesai').value = item.selesai || '';
+
+      isiPilihanTugasEdit(
+        (dataAplikasiTersimpan || {}).dataAnggota || [],
+        (dataAplikasiTersimpan || {}).materiPelajaran || [],
+        item
+      );
+
+      // Tampilkan Modal Popup Edit
+      document.getElementById('editTugasOverlay').hidden = false;
+      return;
+    }
+
+    // 2. JIKA TOMBOL HAPUS DIKLIK
+    if (tombolHapus) {
+      const nomorBaris = Number(tombolHapus.dataset.row);
+      const semuaTugas = (dataAplikasiTersimpan || {}).semuaTugas || [];
+      const item = semuaTugas.find(function(x) { return Number(x.nomorBaris) === nomorBaris; });
+
+      const namaTugas = item ? item.tugas : 'tugas ini';
+
+      // Konfirmasi sebelum menghapus
+      if (confirm('Apakah Anda yakin ingin menghapus ' + namaTugas + '?')) {
+        mintaPin().then(function(pin) {
+          if (!pin) return;
+
+          google.script.run
+            .withSuccessHandler(function(pesan) {
+              tampilkanNotifikasi(pesan, 'success');
+              muatAplikasi(); // Muat ulang data agar tabel langsung diperbarui
+            })
+            .withFailureHandler(function(err) {
+              tampilkanNotifikasi(err && err.message ? err.message : String(err), 'error');
+            })
+            .hapusTugas(nomorBaris, pin);
+        });
+      }
+    }
+  });
 </script>
 </body>
 </html>
