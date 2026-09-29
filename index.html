@@ -2504,33 +2504,22 @@
       .withSuccessHandler(function(data) {
         halamanAnggota = 0;
         dataAplikasiTersimpan = data;
-        dataRekapTersimpan = data.rekapSelesai || [];
-        dataK1Tersimpan = data.antrianKorektor1 || [];
-        dataK2Tersimpan = data.antrianKorektor2 || [];
-        dataKBTersimpan = data.antrianKoreksiBersama || [];
-        daftarRapatTersimpan = data.rapat || [];
-        daftarAnggotaRapatTersimpan = data.daftarAnggotaRapat || [];
-        pengumumanDashboard = data.pengumumanHariIni || [];
-        semuaPengumumanTersimpan = data.semuaPengumuman || [];
+        
+        // Memuat seluruh tugas dari tab spreadsheet ke tabel Tambah Tugas
+        tampilkanTugasDiMenuTambah(data.semuaTugas || []);
 
         tampilkanDashboard(data.dashboard);
         mulaiSlideAgendaDashboard();
         tampilkanPengumuman(data.pengumumanHariIni || []);
-        tampilkanDaftarEditPengumuman(semuaPengumumanTersimpan);
-        tampilkanRekap(dataRekapTersimpan);
-        tampilkanAntrianK1(dataK1Tersimpan);
-        tampilkanAntrianK2(dataK2Tersimpan);
-        tampilkanDaftarRapat(daftarRapatTersimpan);
+        tampilkanDaftarEditPengumuman(data.semuaPengumuman || []);
+        tampilkanRekap(data.rekapSelesai || []);
+        tampilkanAntrianK1(data.antrianKorektor1 || []);
+        tampilkanAntrianK2(data.antrianKorektor2 || []);
+        tampilkanDaftarRapat(data.rapat || []);
         tampilkanModulTambahan(data);
       })
       .withFailureHandler(function(error) {
-        const pesan = error && error.message
-          ? error.message
-          : String(error);
-
-        document.getElementById('pagerDashboard').textContent =
-          'Gagal memuat data: ' + pesan;
-        tampilkanNotifikasi('Gagal memuat data: ' + pesan, 'error');
+        console.error('Gagal memuat data:', error);
       })
       .getDataAplikasi();
   }
