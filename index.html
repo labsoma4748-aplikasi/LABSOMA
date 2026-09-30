@@ -1797,7 +1797,11 @@
     if (indikator) indikator.textContent = 'Halaman ' + (indeksSlideAgenda + 1) + ' dari ' + totalSlide;
     
     // Reset posisi scroll pengumuman slide ke paling atas saat slide berganti
-    if (pengumumanSlide) pengumumanSlide.scrollTop = 0;
+    if (pengumumanSlide) {
+      pengumumanSlide.scrollTop = 0;
+      pengumumanSlide.dataset.isPaused = "true";
+      setTimeout(function() { pengumumanSlide.dataset.isPaused = "false"; }, 3000);
+    }
   }
 
   function mulaiSlideAgendaDashboard() {
@@ -1814,44 +1818,60 @@
     }
   }
 
-  /* FITUR AUTOSCROLL OTOMATIS UNTUK DOKUMEN DAN ELEMEN PANJANG */
+  /* AUTOSCROLL DENGAN PENUNDAAN 3 DETIK DI PANGKAL DAN UJUNG */
+  function kelolaAutoScrollElemen(el) {
+    if (!el || el.scrollHeight <= el.clientHeight) return;
+
+    if (el.dataset.isPaused === "true") return;
+
+    // 1. Jika di posisi paling atas (pukulan awal)
+    if (el.scrollTop === 0 && !el.dataset.hasStarted) {
+      el.dataset.isPaused = "true";
+      el.dataset.hasStarted = "true";
+      setTimeout(function() {
+        el.dataset.isPaused = "false";
+      }, 3000);
+      return;
+    }
+
+    // 2. Jika sudah mencapai posisi paling bawah
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 2) {
+      el.dataset.isPaused = "true";
+      setTimeout(function() {
+        el.scrollTop = 0;
+        el.dataset.hasStarted = "false";
+        setTimeout(function() {
+          el.dataset.isPaused = "false";
+        }, 3000);
+      }, 3000);
+      return;
+    }
+
+    // 3. Gulir halus tanpa penundaan
+    el.scrollTop += 1;
+  }
+
   function jalankanAutoScrollOtomatis() {
     if (timerAutoScroll) clearInterval(timerAutoScroll);
 
     timerAutoScroll = setInterval(function() {
-      // 1. Gulir otomatis kontainer pengumuman dashboard
+      // Auto Scroll Pengumuman Dashboard
       const pengumumanSlide = document.getElementById('dashboardPengumumanSlide');
       if (pengumumanSlide && !pengumumanSlide.hidden) {
-        if (pengumumanSlide.scrollTop + pengumumanSlide.clientHeight >= pengumumanSlide.scrollHeight - 2) {
-          pengumumanSlide.scrollTop = 0;
-        } else {
-          pengumumanSlide.scrollTop += 1;
-        }
+        kelolaAutoScrollElemen(pengumumanSlide);
       }
 
-      // 2. Gulir otomatis panel agenda dashboard
+      // Auto Scroll Panel Agenda
       document.querySelectorAll('.agenda-panel').forEach(function(panel) {
-        if (panel.scrollHeight > panel.clientHeight) {
-          if (panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 2) {
-            panel.scrollTop = 0;
-          } else {
-            panel.scrollTop += 1;
-          }
-        }
+        kelolaAutoScrollElemen(panel);
       });
 
-      // 3. Gulir otomatis halaman menu Pengumuman Utama
+      // Auto Scroll Halaman Pengumuman Utama
       const pengumumanContent = document.querySelector('.announcement-content');
       if (pengumumanContent && document.getElementById('page-pengumuman').classList.contains('active')) {
-        if (pengumumanContent.scrollHeight > pengumumanContent.clientHeight) {
-          if (pengumumanContent.scrollTop + pengumumanContent.clientHeight >= pengumumanContent.scrollHeight - 2) {
-            pengumumanContent.scrollTop = 0;
-          } else {
-            pengumumanContent.scrollTop += 1;
-          }
-        }
+        kelolaAutoScrollElemen(pengumumanContent);
       }
-    }, 50); // Bergerak halus setiap 50 milidetik
+    }, 40); // Kecepatan gulir mulus
   }
 
   function tampilkanDaftarEditPengumuman(daftar) {
