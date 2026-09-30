@@ -104,7 +104,6 @@
     .agenda-range-heading .section-title { flex:1 1 auto; min-width:0; margin:0; font-size:clamp(17px,1.55vw,24px); line-height:1.2; white-space:nowrap; }
     .agenda-range-switch { flex:0 0 auto; }
     .dashboard-agenda-slide, .agenda-panel { min-width:0; }
-    .agenda-range-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; }
     .agenda-range-heading select { max-width:145px; }
     .calendar-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; }
     .calendar-toolbar h2 { margin:0; }
@@ -277,9 +276,10 @@
 
     .dashboard-announcement-slide {
       height: 100%;
-      overflow: auto;
+      overflow-y: auto;
       padding: 14px;
       animation: appear .35s ease;
+      scroll-behavior: smooth;
     }
 
     .dashboard-announcement-slide[hidden],
@@ -312,8 +312,9 @@
     .agenda-panel {
       min-width: 0;
       max-height: 100%;
-      overflow: auto;
+      overflow-y: auto;
       padding: 14px;
+      scroll-behavior: smooth;
     }
 
     .section-title {
@@ -371,7 +372,8 @@
     .announcement-content {
       min-width: 0;
       padding: 22px;
-      overflow: auto;
+      overflow-y: auto;
+      scroll-behavior: smooth;
     }
 
     .announcement-item {
@@ -1355,12 +1357,10 @@
         </form>
       </section>
 
-      <!-- MENU TAMBAH TUGAS (SATU FORMULIR RAPI & OTOMATIS) -->
       <section class="page" id="page-tugas">
         <h1 class="page-heading">Tambah Tugas</h1>
         <p class="subheading">Tugas juga disimpan ke tab Tugas di spreadsheet.</p>
 
-        <!-- FORMULIR INPUT TAMBAH TUGAS -->
         <form class="card form-card" id="formTugas">
           <div class="form-grid">
             <div class="field full">
@@ -1412,7 +1412,6 @@
           </div>
         </form>
 
-        <!-- DAFTAR SEMUA TUGAS + FITUR PENCARIAN & EDIT -->
         <h2 class="section-title" style="margin-top: 28px;">Daftar Semua Tugas</h2>
         
         <div class="search-filters">
@@ -1425,7 +1424,6 @@
         <div id="daftarTugasDalamMenu"></div>
       </section>
 
-      <!-- MODAL POPUP EDIT TUGAS -->
       <div class="modal-overlay" id="editTugasOverlay" hidden>
         <form class="modal" id="formEditTugas" style="width: min(550px, 100%);">
           <h2>Edit Tugas / Soal</h2>
@@ -1500,14 +1498,12 @@
         <h1 class="page-heading">Koreksi Bersama</h1>
         <p class="subheading">Antrean lanjutan tugas yang sudah selesai dikoreksi oleh Korektor 2.</p>
 
-        <!-- FITUR PENCARIAN ANTREAN KOREKSI BERSAMA -->
         <div class="search-filters">
           <input type="search" data-filter-group="kb" data-filter-key="tugas" placeholder="Cari tugas/soal…">
           <input type="search" data-filter-group="kb" data-filter-key="kelas" placeholder="Cari kelas…">
           <input type="search" data-filter-group="kb" data-filter-key="tingkat" placeholder="Cari tingkat…">
         </div>
 
-        <!-- TABEL ANTREAN KOREKSI BERSAMA -->
         <div id="isiKoreksiBersama"></div>
       </section>
 
@@ -1557,6 +1553,7 @@
   let halamanAnggota = 0;
   let timerAnggota = null;
   let timerAgendaDashboard = null;
+  let timerAutoScroll = null;
   let indeksSlideAgenda = 0;
   let pengumumanDashboard = [];
   let semuaPengumumanTersimpan = [];
@@ -1798,6 +1795,9 @@
     `;
 
     if (indikator) indikator.textContent = 'Halaman ' + (indeksSlideAgenda + 1) + ' dari ' + totalSlide;
+    
+    // Reset posisi scroll pengumuman slide ke paling atas saat slide berganti
+    if (pengumumanSlide) pengumumanSlide.scrollTop = 0;
   }
 
   function mulaiSlideAgendaDashboard() {
@@ -1812,6 +1812,46 @@
         gambarSlideAgendaDashboard();
       }, INTERVAL_GANTI_ANGGOTA);
     }
+  }
+
+  /* FITUR AUTOSCROLL OTOMATIS UNTUK DOKUMEN DAN ELEMEN PANJANG */
+  function jalankanAutoScrollOtomatis() {
+    if (timerAutoScroll) clearInterval(timerAutoScroll);
+
+    timerAutoScroll = setInterval(function() {
+      // 1. Gulir otomatis kontainer pengumuman dashboard
+      const pengumumanSlide = document.getElementById('dashboardPengumumanSlide');
+      if (pengumumanSlide && !pengumumanSlide.hidden) {
+        if (pengumumanSlide.scrollTop + pengumumanSlide.clientHeight >= pengumumanSlide.scrollHeight - 2) {
+          pengumumanSlide.scrollTop = 0;
+        } else {
+          pengumumanSlide.scrollTop += 1;
+        }
+      }
+
+      // 2. Gulir otomatis panel agenda dashboard
+      document.querySelectorAll('.agenda-panel').forEach(function(panel) {
+        if (panel.scrollHeight > panel.clientHeight) {
+          if (panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 2) {
+            panel.scrollTop = 0;
+          } else {
+            panel.scrollTop += 1;
+          }
+        }
+      });
+
+      // 3. Gulir otomatis halaman menu Pengumuman Utama
+      const pengumumanContent = document.querySelector('.announcement-content');
+      if (pengumumanContent && document.getElementById('page-pengumuman').classList.contains('active')) {
+        if (pengumumanContent.scrollHeight > pengumumanContent.clientHeight) {
+          if (pengumumanContent.scrollTop + pengumumanContent.clientHeight >= pengumumanContent.scrollHeight - 2) {
+            pengumumanContent.scrollTop = 0;
+          } else {
+            pengumumanContent.scrollTop += 1;
+          }
+        }
+      }
+    }, 50); // Bergerak halus setiap 50 milidetik
   }
 
   function tampilkanDaftarEditPengumuman(daftar) {
@@ -2296,6 +2336,9 @@
         tampilkanAntrianK2(dataK2Tersimpan);
         tampilkanDaftarRapat(daftarRapatTersimpan);
         tampilkanModulTambahan(data);
+        
+        // Jalankan Autoscroll setelah data dimuat
+        jalankanAutoScrollOtomatis();
       })
       .withFailureHandler(function(error) {
         const pesan = error && error.message ? error.message : String(error);
@@ -2761,7 +2804,7 @@
   document.getElementById('tugasMulai').value = tanggalHariIniLokal();
   document.getElementById('tugasSelesai').value = tanggalHariIniLokal();
 
-  // Inisialisasi Aplikasi Saat Halaman Dibuka
+  // Inisialisasi Aplikasi
   perbaruiJamDashboard();
   perbaruiHeaderPengumuman();
   muatAplikasi();
