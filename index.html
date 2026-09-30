@@ -279,7 +279,7 @@
       overflow-y: auto;
       padding: 14px;
       animation: appear .35s ease;
-      scroll-behavior: auto; /* Dibuat 'auto' agar penambahan scrollTop berjalan presisi */
+      scroll-behavior: auto;
     }
 
     .dashboard-announcement-slide[hidden],
@@ -1786,7 +1786,6 @@
 
     if (!sedangPengumuman) {
       if (indikator) indikator.textContent = (pengumumanDashboard || []).length ? 'Halaman 1 dari ' + totalSlide : '';
-      // Pada slide agenda, tunggu 5 detik lalu ganti ke slide berikutnya
       if (timerAgendaDashboard) clearTimeout(timerAgendaDashboard);
       if (pengumumanDashboard && pengumumanDashboard.length) {
         timerAgendaDashboard = setTimeout(pindahKeSlideBerikutnya, INTERVAL_GANTI_ANGGOTA);
@@ -1807,7 +1806,6 @@
 
     if (indikator) indikator.textContent = 'Halaman ' + (indeksSlideAgenda + 1) + ' dari ' + totalSlide;
 
-    // Reset posisi scroll dan hilangkan flag
     if (pengumumanSlide) {
       pengumumanSlide.scrollTop = 0;
       delete pengumumanSlide.dataset.state;
@@ -1821,11 +1819,9 @@
     gambarSlideAgendaDashboard();
   }
 
-  /* SISTEM AUTOSCROLL PRESISI: DIAM ATAS (3s) -> BERGULIR -> DIAM BAWAH (3s) -> PINDAH */
   function kelolaAutoScrollElemen(el, callbackSelesai) {
     if (!el) return;
 
-    // Jika konten muat dalam satu layar (tidak butuh scroll)
     if (el.scrollHeight <= el.clientHeight) {
       if (!el.dataset.state) {
         el.dataset.state = 'bottom_pause';
@@ -1838,7 +1834,6 @@
       return;
     }
 
-    // 1. Inisialisasi: Diam 3 detik di paling atas
     if (!el.dataset.state) {
       el.scrollTop = 0;
       el.dataset.state = 'top_pause';
@@ -1846,7 +1841,6 @@
       return;
     }
 
-    // 2. Fase Diam di Atas
     if (el.dataset.state === 'top_pause') {
       if (Date.now() >= Number(el.dataset.pauseUntil)) {
         el.dataset.state = 'scrolling';
@@ -1854,10 +1848,8 @@
       return;
     }
 
-    // 3. Fase Bergulir Turun (Tanpa Batasan Waktu)
     if (el.dataset.state === 'scrolling') {
       el.scrollTop += 1;
-      // Cek apakah sudah menyentuh dasar
       if (el.scrollTop + el.clientHeight >= el.scrollHeight - 2) {
         el.dataset.state = 'bottom_pause';
         el.dataset.pauseUntil = Date.now() + 3000;
@@ -1865,7 +1857,6 @@
       return;
     }
 
-    // 4. Fase Diam di Paling Bawah (3 Detik) lalu Jalankan Callback
     if (el.dataset.state === 'bottom_pause') {
       if (Date.now() >= Number(el.dataset.pauseUntil)) {
         delete el.dataset.state;
@@ -1873,7 +1864,6 @@
         if (callbackSelesai) {
           callbackSelesai();
         } else {
-          // Jika tidak ada callback (seperti di halaman umum), kembali ke paling atas
           el.scrollTop = 0;
         }
       }
@@ -1884,7 +1874,6 @@
     if (timerAutoScroll) clearInterval(timerAutoScroll);
 
     timerAutoScroll = setInterval(function() {
-      // 1. Auto Scroll Slide Pengumuman Dashboard (beralih ke pengumuman/slide berikutnya setelah tuntas)
       const pengumumanSlide = document.getElementById('dashboardPengumumanSlide');
       if (pengumumanSlide && !pengumumanSlide.hidden) {
         kelolaAutoScrollElemen(pengumumanSlide, function() {
@@ -1892,17 +1881,15 @@
         });
       }
 
-      // 2. Auto Scroll Panel Agenda Dashboard
       document.querySelectorAll('.agenda-panel').forEach(function(panel) {
         kelolaAutoScrollElemen(panel, null);
       });
 
-      // 3. Auto Scroll Halaman Pengumuman Utama
       const pengumumanContent = document.querySelector('.announcement-content');
       if (pengumumanContent && document.getElementById('page-pengumuman').classList.contains('active')) {
         kelolaAutoScrollElemen(pengumumanContent, null);
       }
-    }, 35); // Kecepatan gulir mulus konsisten
+    }, 35);
   }
 
   function tampilkanDaftarEditPengumuman(daftar) {
@@ -1941,7 +1928,15 @@
     dataDashboardTersimpan = data;
     tampilkanAgenda('agendaHariIni', data.agendaHariIni || []);
     document.getElementById('judulAgendaRentang').textContent = rentangAgendaTerpilih === 'bulan' ? 'Agenda Bulan Ini' : 'Agenda Pekan Ini';
-    tampilkanAgendaRentang(rentangAgendaTerpilih === 'bulan' ? data.agendaBulanIni : data.agendaPekanIni);
+    
+    // MENYARING AGENDA HARI INI DARI RENTANG PEKAN / BULAN
+    const hariIniISO = tanggalHariIniLokal();
+    const sumberRentang = rentangAgendaTerpilih === 'bulan' ? (data.agendaBulanIni || []) : (data.agendaPekanIni || []);
+    const rentangTanpaHariIni = sumberRentang.filter(function(item) {
+      return String(item.tanggal || '').slice(0, 10) !== hariIniISO;
+    });
+
+    tampilkanAgendaRentang(rentangTanpaHariIni);
 
     const salat = data.waktuShalatBerikutnya;
     if (salat && salat.targetMillis) {
@@ -2388,7 +2383,6 @@
         tampilkanDaftarRapat(daftarRapatTersimpan);
         tampilkanModulTambahan(data);
         
-        // Jalankan Autoscroll setelah data dimuat
         jalankanAutoScrollOtomatis();
       })
       .withFailureHandler(function(error) {
@@ -2855,7 +2849,6 @@
   document.getElementById('tugasMulai').value = tanggalHariIniLokal();
   document.getElementById('tugasSelesai').value = tanggalHariIniLokal();
 
-  // Inisialisasi Aplikasi
   perbaruiJamDashboard();
   perbaruiHeaderPengumuman();
   muatAplikasi();
