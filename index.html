@@ -2343,16 +2343,56 @@
       document.getElementById('isiPesertaRapat').innerHTML = '';
     } else {
       const jumlahHadir = daftarPeserta.filter(function(item) { return item.kehadiran === 'Hadir'; }).length;
-      const ringkasan = mode === 'rekap' ? '<p><b>' + jumlahHadir + ' hadir</b> · ' + (daftarPeserta.length - jumlahHadir) + ' belum · ' + daftarPeserta.length + ' peserta</p>' : '';
-      const barisPeserta = daftarPeserta.length
-        ? daftarPeserta.map(function(item) {
-            return '<div class="rapat-peserta-row"><span>' + aman(item.nama) + ' — <b>' + aman(item.kehadiran) + '</b></span>' +
-              (mode === 'absen' ? '<span><button class="button small" data-rapat-presensi="Hadir" data-nama="' + aman(item.nama) + '">Hadir</button><button class="button secondary small" data-rapat-presensi="Belum Absen" data-nama="' + aman(item.nama) + '">Belum</button></span>' : '') +
-              '</div>';
-          }).join('')
-        : '<div class="empty">Belum ada peserta yang didaftarkan ke rapat ini.</div>';
+      const ringkasan = '<p style="margin-bottom: 14px;"><b>' + jumlahHadir + ' hadir</b> · ' + (daftarPeserta.length - jumlahHadir) + ' belum · ' + daftarPeserta.length + ' peserta</p>';
 
-      document.getElementById('isiPesertaRapat').innerHTML = ringkasan + barisPeserta;
+      if (!daftarPeserta.length) {
+        document.getElementById('isiPesertaRapat').innerHTML = ringkasan + '<div class="empty">Belum ada peserta yang didaftarkan ke rapat ini.</div>';
+      } else {
+        // Pisahkan daftar peserta berdasarkan status kehadiran
+        const daftarBelum = daftarPeserta.filter(function(item) { return item.kehadiran !== 'Hadir'; });
+        const daftarHadir = daftarPeserta.filter(function(item) { return item.kehadiran === 'Hadir'; });
+
+        const buatList = function(list, statusText, statusColor) {
+          if (!list.length) return '<div class="empty" style="padding: 8px 0;">Tidak ada peserta</div>';
+          return list.map(function(item) {
+            return `
+              <div class="rapat-peserta-row" style="padding: 8px 0;">
+                <span>${aman(item.nama)}</span>
+                ${mode === 'absen' ? `
+                  <span>
+                    <button class="button small" data-rapat-presensi="Hadir" data-nama="${aman(item.nama)}">Hadir</button>
+                    <button class="button secondary small" data-rapat-presensi="Belum Absen" data-nama="${aman(item.nama)}">Belum</button>
+                  </span>
+                ` : `
+                  <span style="color: ${statusColor}; font-weight: 700; font-size: 13px;">${statusText}</span>
+                `}
+              </div>
+            `;
+          }).join('');
+        };
+
+        // Buat tampilan 2 kolom rapat-grid
+        const tampilanDuaKolom = `
+          ${ringkasan}
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 10px;">
+            <div style="border: 1px solid var(--garis); border-radius: 12px; padding: 14px; background: var(--panel2);">
+              <h3 style="margin: 0 0 10px; color: #ff6868; font-size: 16px; border-bottom: 1px solid var(--garis); padding-bottom: 6px;">
+                Belum Absen (${daftarBelum.length})
+              </h3>
+              ${buatList(daftarBelum, 'Belum Absen', '#ff6868')}
+            </div>
+
+            <div style="border: 1px solid var(--garis); border-radius: 12px; padding: 14px; background: var(--panel2);">
+              <h3 style="margin: 0 0 10px; color: var(--aksen); font-size: 16px; border-bottom: 1px solid var(--garis); padding-bottom: 6px;">
+                Hadir (${daftarHadir.length})
+              </h3>
+              ${buatList(daftarHadir, 'Hadir', 'var(--aksen)')}
+            </div>
+          </div>
+        `;
+
+        document.getElementById('isiPesertaRapat').innerHTML = tampilanDuaKolom;
+      }
     }
 
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
