@@ -1718,19 +1718,50 @@
 
   function formatTanggalHijriyah(tanggal) {
     const opsi = { timeZone: ZONA_WAKTU, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-    let hasil = '';
-    try {
-      hasil = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', opsi).format(tanggal);
-    } catch (e) {
-      try {
-        hasil = new Intl.DateTimeFormat('id-ID-u-ca-islamic', opsi).format(tanggal);
-      } catch (err) {
-        return 'Tanggal Hijriyah tidak didukung browser';
-      }
-    }
     
-    // Hapus akhiran SM / BC / Sebelum Masehi yang muncul akibat bug browser mobile
-    return hasil.replace(/\s*(SM|BC|Sebelum Masehi)\s*/gi, '').trim();
+    // 1. Coba gunakan bawaan Intl jika browser mendukung dengan normal
+    try {
+      const formatted = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', opsi).format(tanggal);
+      if (formatted && !formatted.includes('NaN')) {
+        return formatted.replace(/\s*(SM|BC|Sebelum Masehi)\s*/gi, '').trim();
+      }
+    } catch (e) {}
+
+    try {
+      const formatted = new Intl.DateTimeFormat('id-ID-u-ca-islamic', opsi).format(tanggal);
+      if (formatted && !formatted.includes('NaN')) {
+        return formatted.replace(/\s*(SM|BC|Sebelum Masehi)\s*/gi, '').trim();
+      }
+    } catch (e) {}
+
+    // 2. Fallback Algoritma Manual jika Intl browser mobile bermasalah/error
+    const namaHari = new Intl.DateTimeFormat('id-ID', { timeZone: ZONA_WAKTU, weekday: 'long' }).format(tanggal);
+    const namaBulan = [
+      'Muharram', 'Safar', 'Rabiul Awal', 'Rabiul Akhir',
+      'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Sya\'ban',
+      'Ramadhan', 'Syawal', 'Dzulqa\'dah', 'Dzulhijjah'
+    ];
+
+    // Konversi sederhana Julian Day ke Hijriah
+    const gY = tanggal.getFullYear();
+    const gM = tanggal.getMonth();
+    const gD = tanggal.getDate();
+
+    let m = gM + 1;
+    let y = gY;
+    if (m < 3) { y -= 1; m += 12; }
+
+    const a = Math.floor(y / 100);
+    const b = 2 - a + Math.floor(a / 4);
+    const jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + gD + b - 1524.5;
+
+    const z = jd - 1948439.5;
+    const hY = Math.floor((z - 0.5) / 354.367);
+    const r = z - Math.floor(hY * 354.367);
+    const hM = Math.min(11, Math.floor((r + 0.5) / 29.5));
+    const hD = Math.floor(r - Math.floor(hM * 29.5) + 1);
+
+    return `${namaHari}, ${hD} ${namaBulan[hM]} ${hY + 1} H`;
   }
 
   function formatWaktu12(tanggal) {
