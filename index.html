@@ -1717,61 +1717,27 @@
   }
 
   function formatTanggalHijriyah(tanggal) {
-    if (!tanggal) return '—';
-
-    // 1. Ambil nama hari WIB
-    const namaHari = new Intl.DateTimeFormat('id-ID', { timeZone: ZONA_WAKTU, weekday: 'long' }).format(tanggal);
-    
-    // 2. Ambil komponen tanggal, bulan, tahun dalam zona waktu WIB
-    const formatter = new Intl.DateTimeFormat('id-ID', {
+    const opsi = {
       timeZone: ZONA_WAKTU,
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric'
-    });
-    
-    const parts = formatter.formatToParts(tanggal);
-    let gD = 1, gM = 1, gY = 2026;
-    
-    parts.forEach(function(p) {
-      if (p.type === 'day') gD = parseInt(p.value, 10);
-      if (p.type === 'month') gM = parseInt(p.value, 10);
-      if (p.type === 'year') gY = parseInt(p.value, 10);
-    });
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    };
 
-    // 3. Nama bulan Hijriah baku
-    const namaBulanHijriah = [
-      'Muharram', 'Safar', 'Rabiul Awal', 'Rabiul Akhir',
-      'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Sya\'ban',
-      'Ramadhan', 'Syawal', 'Dzulqa\'dah', 'Dzulhijjah'
-    ];
-
-    // 4. Perhitungan Julian Day Number (JDN) dari Masehi
-    let m = gM;
-    let y = gY;
-    if (m <= 2) {
-      y -= 1;
-      m += 12;
+    try {
+      return new Intl.DateTimeFormat(
+        'id-ID-u-ca-islamic-umalqura',
+        opsi
+      ).format(tanggal);
+    } catch (e) {
+      try {
+        return new Intl.DateTimeFormat('id-ID-u-ca-islamic', opsi)
+          .format(tanggal);
+      } catch (err) {
+        return 'Tanggal Hijriyah tidak didukung browser';
+      }
     }
-
-    const a = Math.floor(y / 100);
-    const b = 2 - a + Math.floor(a / 4);
-    const jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + gD + b - 1524.5;
-
-    // 5. Konversi Julian Day ke Kalender Hijriah (Kuwaiti Algorithm)
-    const l = jd - 1948440 + 10632;
-    const n = Math.floor((l - 1) / 10631);
-    const l1 = l - 10631 * n + 354;
-    const j = (Math.floor((10985 - l1) / 5316)) * (Math.floor((50 * l1) / 17719)) + (Math.floor(l1 / 5670)) * (Math.floor((43 * l1) / 15238));
-    const l2 = l1 - (Math.floor((30 - j) / 15)) * (Math.floor((17719 * j) / 50)) - (Math.floor(j / 30)) * (Math.floor((15238 * j) / 43)) + 29;
-    
-    const hM = Math.floor((24 * l2) / 709);
-    const hD = l2 - Math.floor((709 * hM) / 24);
-    const hY = 30 * n + j - 30;
-
-    const bulanTeks = namaBulanHijriah[hM - 1] || 'Muharram';
-
-    return namaHari + ', ' + hD + ' ' + bulanTeks + ' ' + hY + ' H';
   }
 
   function formatWaktu12(tanggal) {
