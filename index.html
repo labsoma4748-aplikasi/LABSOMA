@@ -104,6 +104,7 @@
     .agenda-range-heading .section-title { flex:1 1 auto; min-width:0; margin:0; font-size:clamp(17px,1.55vw,24px); line-height:1.2; white-space:nowrap; }
     .agenda-range-switch { flex:0 0 auto; }
     .dashboard-agenda-slide, .agenda-panel { min-width:0; }
+    .agenda-range-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; }
     .agenda-range-heading select { max-width:145px; }
     .calendar-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; }
     .calendar-toolbar h2 { margin:0; }
@@ -276,10 +277,9 @@
 
     .dashboard-announcement-slide {
       height: 100%;
-      overflow-y: auto;
+      overflow: auto;
       padding: 14px;
       animation: appear .35s ease;
-      scroll-behavior: auto;
     }
 
     .dashboard-announcement-slide[hidden],
@@ -312,9 +312,8 @@
     .agenda-panel {
       min-width: 0;
       max-height: 100%;
-      overflow-y: auto;
+      overflow: auto;
       padding: 14px;
-      scroll-behavior: auto;
     }
 
     .section-title {
@@ -372,8 +371,7 @@
     .announcement-content {
       min-width: 0;
       padding: 22px;
-      overflow-y: auto;
-      scroll-behavior: auto;
+      overflow: auto;
     }
 
     .announcement-item {
@@ -1058,7 +1056,8 @@
       width: auto;
     }
 
-    html, body {
+    html,
+    body {
       width: 100%;
       max-width: 100%;
       overflow-x: hidden;
@@ -1075,6 +1074,47 @@
       min-width: 0;
       max-width: 100%;
       overflow-x: hidden;
+    }
+
+    @media (max-width: 700px) {
+      .app {
+        display: block;
+        width: 100%;
+        max-width: 100vw;
+      }
+
+      .main {
+        width: 100%;
+        max-width: 100vw;
+        min-width: 0;
+        overflow-x: hidden;
+      }
+
+      .page,
+      .card,
+      .dashboard-top,
+      .dashboard-agenda-shell,
+      .announcement-layout,
+      .announcement-content {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .table-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        min-width: 760px;
+      }
+
+      .rapat-heading,
+      .rapat-peserta-row {
+        flex-wrap: wrap;
+      }
     }
   </style>
 </head>
@@ -1357,10 +1397,12 @@
         </form>
       </section>
 
+      <!-- MENU TAMBAH TUGAS (SATU FORMULIR RAPI & OTOMATIS) -->
       <section class="page" id="page-tugas">
         <h1 class="page-heading">Tambah Tugas</h1>
         <p class="subheading">Tugas juga disimpan ke tab Tugas di spreadsheet.</p>
 
+        <!-- FORMULIR INPUT TAMBAH TUGAS -->
         <form class="card form-card" id="formTugas">
           <div class="form-grid">
             <div class="field full">
@@ -1412,6 +1454,7 @@
           </div>
         </form>
 
+        <!-- DAFTAR SEMUA TUGAS + FITUR PENCARIAN & EDIT -->
         <h2 class="section-title" style="margin-top: 28px;">Daftar Semua Tugas</h2>
         
         <div class="search-filters">
@@ -1424,6 +1467,7 @@
         <div id="daftarTugasDalamMenu"></div>
       </section>
 
+      <!-- MODAL POPUP EDIT TUGAS -->
       <div class="modal-overlay" id="editTugasOverlay" hidden>
         <form class="modal" id="formEditTugas" style="width: min(550px, 100%);">
           <h2>Edit Tugas / Soal</h2>
@@ -1498,12 +1542,14 @@
         <h1 class="page-heading">Koreksi Bersama</h1>
         <p class="subheading">Antrean lanjutan tugas yang sudah selesai dikoreksi oleh Korektor 2.</p>
 
+        <!-- FITUR PENCARIAN ANTREAN KOREKSI BERSAMA -->
         <div class="search-filters">
           <input type="search" data-filter-group="kb" data-filter-key="tugas" placeholder="Cari tugas/soal…">
           <input type="search" data-filter-group="kb" data-filter-key="kelas" placeholder="Cari kelas…">
           <input type="search" data-filter-group="kb" data-filter-key="tingkat" placeholder="Cari tingkat…">
         </div>
 
+        <!-- TABEL ANTREAN KOREKSI BERSAMA -->
         <div id="isiKoreksiBersama"></div>
       </section>
 
@@ -1534,7 +1580,8 @@
     <form class="modal" id="pinForm">
       <h2>PIN Admin</h2>
       <p>Masukkan PIN untuk menyimpan perubahan.</p>
-      <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN admin" required>
+      <input id="pinInput" type="password" inputmode="numeric"
+        autocomplete="current-password" placeholder="PIN admin" required>
       <div class="modal-error" id="pinError"></div>
       <div class="modal-actions">
         <button class="button secondary" type="button" id="pinCancel">Batal</button>
@@ -1553,7 +1600,6 @@
   let halamanAnggota = 0;
   let timerAnggota = null;
   let timerAgendaDashboard = null;
-  let timerAutoScroll = null;
   let indeksSlideAgenda = 0;
   let pengumumanDashboard = [];
   let semuaPengumumanTersimpan = [];
@@ -1578,7 +1624,11 @@
     const tampilan = document.getElementById('hitungMundurSalat');
     if (!tampilan || !targetSalatMillis) return;
 
-    const sisa = Math.max(0, Math.floor((targetSalatMillis - Date.now()) / 1000));
+    const sisa = Math.max(
+      0,
+      Math.floor((targetSalatMillis - Date.now()) / 1000)
+    );
+
     if (sisa === 0) {
       tampilan.textContent = 'Waktunya salat';
       return;
@@ -1588,13 +1638,15 @@
     const menit = Math.floor((sisa % 3600) / 60);
     const detik = sisa % 60;
 
-    tampilan.textContent = [jam, menit, detik].map(function(angka) {
-      return String(angka).padStart(2, '0');
-    }).join(':');
+    tampilan.textContent = [jam, menit, detik]
+      .map(function(angka) {
+        return String(angka).padStart(2, '0');
+      })
+      .join(':');
   }
 
   function saringDaftarTugas(daftar, grup) {
-    const kolom = ['nama', 'tugas', 'kelas', 'tingkat', 'status'];
+    const kolom = ['tugas', 'kelas', 'tingkat', 'status'];
 
     return (daftar || []).filter(function(item) {
       return kolom.every(function(kunci) {
@@ -1602,38 +1654,62 @@
           '[data-filter-group="' + grup + '"][data-filter-key="' + kunci + '"]'
         );
 
-        const kata = input ? input.value.trim().toLocaleLowerCase('id') : '';
-        const nilai = kunci === 'status' ? statusTampilanRekap(item) : item[kunci];
+        const kata = input
+          ? input.value.trim().toLocaleLowerCase('id')
+          : '';
 
-        return !kata || String(nilai || '').toLocaleLowerCase('id').includes(kata);
+        const nilai = kunci === 'status'
+          ? statusTampilanRekap(item)
+          : item[kunci];
+
+        return !kata ||
+          String(nilai || '').toLocaleLowerCase('id').includes(kata);
       });
     });
   }
 
   function statusTampilanRekap(item) {
-    if (String(item.status || '').toLowerCase() === 'selesai') return 'Selesai';
-    return tanggalHariIniLokal() > item.selesai ? 'Telat/Belum' : 'Proses';
+    if (String(item.status || '').toLowerCase() === 'selesai') {
+      return 'Selesai';
+    }
+
+    return tanggalHariIniLokal() > item.selesai
+      ? 'Telat/Belum'
+      : 'Proses';
   }
 
   function aman(teks) {
     return String(teks == null ? '' : teks).replace(/[&<>"']/g, function(c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[c];
     });
   }
 
   function tampilkanNotifikasi(pesan, jenis) {
     const area = document.getElementById('toastArea');
     const toast = document.createElement('div');
+
     toast.className = 'toast ' + (jenis || '');
     toast.textContent = pesan;
     area.appendChild(toast);
-    setTimeout(function() { toast.remove(); }, 4000);
+
+    setTimeout(function() {
+      toast.remove();
+    }, 4000);
   }
 
   function tanggalHariIniLokal() {
     const sekarang = new Date();
     const offset = sekarang.getTimezoneOffset();
-    return new Date(sekarang.getTime() - offset * 60000).toISOString().slice(0, 10);
+
+    return new Date(sekarang.getTime() - offset * 60000)
+      .toISOString()
+      .slice(0, 10);
   }
 
   function waktuIstiwak() {
@@ -1642,57 +1718,103 @@
 
   function formatTanggalHijriyah(tanggal) {
     const opsi = { timeZone: ZONA_WAKTU, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    let hasil = '';
     try {
-      return new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', opsi).format(tanggal);
+      hasil = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', opsi).format(tanggal);
     } catch (e) {
       try {
-        return new Intl.DateTimeFormat('id-ID-u-ca-islamic', opsi).format(tanggal);
+        hasil = new Intl.DateTimeFormat('id-ID-u-ca-islamic', opsi).format(tanggal);
       } catch (err) {
         return 'Tanggal Hijriyah tidak didukung browser';
       }
     }
+    
+    // Hapus akhiran SM / BC / Sebelum Masehi yang muncul akibat bug browser mobile
+    return hasil.replace(/\s*(SM|BC|Sebelum Masehi)\s*/gi, '').trim();
   }
 
   function formatWaktu12(tanggal) {
     const bagian = new Intl.DateTimeFormat('id-ID', {
-      timeZone: ZONA_WAKTU, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+      timeZone: ZONA_WAKTU,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
     }).formatToParts(tanggal);
 
-    return bagian.filter(function(item) { return ['hour', 'minute', 'second'].includes(item.type); })
-      .map(function(item) { return item.value; }).join(':');
+    return bagian
+      .filter(function(item) {
+        return ['hour', 'minute', 'second'].includes(item.type);
+      })
+      .map(function(item) {
+        return item.value;
+      })
+      .join(':');
   }
 
   function perbaruiJamDashboard() {
     const istiwak = waktuIstiwak();
     perbaruiHitungMundurSalat();
 
-    const elHijri = document.getElementById('tanggalHijriyah');
-    if (elHijri) elHijri.textContent = formatTanggalHijriyah(istiwak);
+    document.getElementById('tanggalHijriyah').textContent =
+      formatTanggalHijriyah(istiwak);
 
-    const elMasehi = document.getElementById('tanggalMasehi');
-    if (elMasehi) elMasehi.textContent = new Intl.DateTimeFormat('id-ID', { timeZone: ZONA_WAKTU, day: 'numeric', month: 'long', year: 'numeric' }).format(istiwak);
+    document.getElementById('tanggalMasehi').textContent =
+      '' + new Intl.DateTimeFormat('id-ID', {
+        timeZone: ZONA_WAKTU,
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(istiwak);
 
-    const elJam = document.getElementById('jam');
-    if (elJam) elJam.textContent = formatWaktu12(istiwak) + ' WIS';
+    document.getElementById('jam').textContent =
+      formatWaktu12(istiwak) + ' WIS';
   }
 
   function perbaruiHeaderPengumuman() {
-    const istiwak = new Date(Date.now() + SELISIH_ISTIWAK_MENIT * 60000);
+    const istiwak = new Date(
+      Date.now() + SELISIH_ISTIWAK_MENIT * 60000
+    );
     const wib = new Date();
     const hijri = document.getElementById('pengumumanHijriyah');
 
     if (!hijri) return;
 
     hijri.textContent = formatTanggalHijriyah(istiwak);
-    document.getElementById('pengumumanMasehi').textContent = new Intl.DateTimeFormat('id-ID', { timeZone: ZONA_WAKTU, day: 'numeric', month: 'long', year: 'numeric' }).format(istiwak);
-    document.getElementById('pengumumanJam').textContent = new Intl.DateTimeFormat('id-ID', { timeZone: ZONA_WAKTU, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).format(istiwak);
-    document.getElementById('pengumumanWib').textContent = new Intl.DateTimeFormat('id-ID', { timeZone: ZONA_WAKTU, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).format(wib);
+
+    document.getElementById('pengumumanMasehi').textContent =
+      new Intl.DateTimeFormat('id-ID', {
+        timeZone: ZONA_WAKTU,
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(istiwak);
+
+    document.getElementById('pengumumanJam').textContent =
+      new Intl.DateTimeFormat('id-ID', {
+        timeZone: ZONA_WAKTU,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      }).format(istiwak);
+
+    document.getElementById('pengumumanWib').textContent =
+      new Intl.DateTimeFormat('id-ID', {
+        timeZone: ZONA_WAKTU,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      }).format(wib);
   }
 
   function formatTanggal(iso) {
     if (!iso) return '—';
+
     const bagian = String(iso).split('-');
     if (bagian.length !== 3) return aman(iso);
+
     return bagian[2] + '/' + bagian[1] + '/' + bagian[0];
   }
 
@@ -1714,14 +1836,15 @@
 
   document.querySelectorAll('.nav-group-toggle').forEach(function(button) {
     button.addEventListener('click', function() {
-      const submenu = document.getElementById('menu-' + button.dataset.menu);
-      submenu.hidden = !submenu.hidden;
-      button.querySelector('span').textContent = submenu.hidden ? '⌄' : '⌃';
+      const submenu=document.getElementById('menu-'+button.dataset.menu);
+      submenu.hidden=!submenu.hidden;
+      button.querySelector('span').textContent=submenu.hidden?'⌄':'⌃';
     });
   });
 
   function tampilkanAgenda(id, daftar) {
     const wadah = document.getElementById(id);
+
     if (!daftar || daftar.length === 0) {
       wadah.innerHTML = '<div class="empty">Tidak ada agenda.</div>';
       return;
@@ -1748,229 +1871,185 @@
 
   function tampilkanPengumuman(daftar) {
     const wadah = document.getElementById('isiPengumuman');
+
     if (!daftar || daftar.length === 0) {
-      if (wadah) wadah.innerHTML = '<div class="empty">Tidak ada pengumuman untuk hari ini.</div>';
+      wadah.innerHTML =
+        '<div class="empty">Tidak ada pengumuman untuk hari ini.</div>';
       return;
     }
 
-    if (wadah) {
-      wadah.innerHTML = daftar.map(function(item) {
-        return `
-          <article class="announcement-item">
-            ${item.keterangan ? `<h2 class="announcement-title">${aman(item.keterangan)}</h2>` : ''}
-            <div class="announcement-text">${aman(item.isi)}</div>
-            ${item.sasaran ? `<div class="announcement-target">Kepada: ${aman(item.sasaran)}</div>` : ''}
-          </article>
-        `;
-      }).join('');
-    }
-  }
-
-  function pindahKeSlideBerikutnya() {
-    const totalSlide = 1 + (pengumumanDashboard || []).length;
-    indeksSlideAgenda = (indeksSlideAgenda + 1) % totalSlide;
-    gambarSlideAgendaDashboard();
+    wadah.innerHTML = daftar.map(function(item) {
+      return `
+        <article class="announcement-item">
+          ${item.keterangan
+            ? `<h2 class="announcement-title">${aman(item.keterangan)}</h2>`
+            : ''}
+          <div class="announcement-text">${aman(item.isi)}</div>
+          ${item.sasaran
+            ? `<div class="announcement-target">Kepada: ${aman(item.sasaran)}</div>`
+            : ''}
+        </article>
+      `;
+    }).join('');
   }
 
   function gambarSlideAgendaDashboard() {
     const agendaSlide = document.getElementById('dashboardAgendaSlide');
-    const pengumumanSlide = document.getElementById('dashboardPengumumanSlide');
-    const indikator = document.getElementById('dashboardSlideIndicator');
-    const totalSlide = 1 + (pengumumanDashboard || []).length;
+    const pengumumanSlide =
+      document.getElementById('dashboardPengumumanSlide');
+    const indikator =
+      document.getElementById('dashboardSlideIndicator');
+    const totalSlide = 1 + pengumumanDashboard.length;
 
     if (indeksSlideAgenda >= totalSlide) indeksSlideAgenda = 0;
 
     const sedangPengumuman = indeksSlideAgenda > 0;
-    if (agendaSlide) agendaSlide.hidden = sedangPengumuman;
-    if (pengumumanSlide) pengumumanSlide.hidden = !sedangPengumuman;
+    agendaSlide.hidden = sedangPengumuman;
+    pengumumanSlide.hidden = !sedangPengumuman;
 
     if (!sedangPengumuman) {
-      if (indikator) indikator.textContent = (pengumumanDashboard || []).length ? 'Halaman 1 dari ' + totalSlide : '';
-      if (timerAgendaDashboard) clearTimeout(timerAgendaDashboard);
-      if (pengumumanDashboard && pengumumanDashboard.length) {
-        timerAgendaDashboard = setTimeout(pindahKeSlideBerikutnya, INTERVAL_GANTI_ANGGOTA);
-      }
+      indikator.textContent = pengumumanDashboard.length
+        ? 'Halaman 1 dari ' + totalSlide
+        : '';
       return;
     }
 
     const item = pengumumanDashboard[indeksSlideAgenda - 1];
-    if (!item) return;
 
-    document.getElementById('judulDashboardPengumuman').textContent = item.keterangan || 'Pengumuman';
+    document.getElementById('judulDashboardPengumuman').textContent =
+      item.keterangan || 'Pengumuman';
+
     document.getElementById('dashboardPengumuman').innerHTML = `
       <article class="announcement-item">
         <div class="dashboard-announcement-copy">${aman(item.isi)}</div>
-        ${item.sasaran ? `<div class="dashboard-announcement-target">Sasaran: ${aman(item.sasaran)}</div>` : ''}
+        ${item.sasaran
+          ? `<div class="dashboard-announcement-target">Sasaran: ${aman(item.sasaran)}</div>`
+          : ''}
       </article>
     `;
 
-    if (indikator) indikator.textContent = 'Halaman ' + (indeksSlideAgenda + 1) + ' dari ' + totalSlide;
-
-    if (pengumumanSlide) {
-      pengumumanSlide.scrollTop = 0;
-      delete pengumumanSlide.dataset.state;
-      delete pengumumanSlide.dataset.pauseUntil;
-    }
+    indikator.textContent =
+      'Halaman ' + (indeksSlideAgenda + 1) + ' dari ' + totalSlide;
   }
 
   function mulaiSlideAgendaDashboard() {
-    if (timerAgendaDashboard) clearTimeout(timerAgendaDashboard);
+    if (timerAgendaDashboard) {
+      clearInterval(timerAgendaDashboard);
+    }
+
     indeksSlideAgenda = 0;
     gambarSlideAgendaDashboard();
-  }
 
-  function kelolaAutoScrollElemen(el, callbackSelesai) {
-    if (!el) return;
-
-    if (el.scrollHeight <= el.clientHeight) {
-      if (!el.dataset.state) {
-        el.dataset.state = 'bottom_pause';
-        el.dataset.pauseUntil = Date.now() + 3000;
-      } else if (el.dataset.state === 'bottom_pause' && Date.now() >= Number(el.dataset.pauseUntil)) {
-        delete el.dataset.state;
-        delete el.dataset.pauseUntil;
-        if (callbackSelesai) callbackSelesai();
-      }
-      return;
+    if (pengumumanDashboard.length) {
+      timerAgendaDashboard = setInterval(function() {
+        indeksSlideAgenda =
+          (indeksSlideAgenda + 1) % (1 + pengumumanDashboard.length);
+        gambarSlideAgendaDashboard();
+      }, INTERVAL_GANTI_ANGGOTA);
     }
-
-    if (!el.dataset.state) {
-      el.scrollTop = 0;
-      el.dataset.state = 'top_pause';
-      el.dataset.pauseUntil = Date.now() + 3000;
-      return;
-    }
-
-    if (el.dataset.state === 'top_pause') {
-      if (Date.now() >= Number(el.dataset.pauseUntil)) {
-        el.dataset.state = 'scrolling';
-      }
-      return;
-    }
-
-    if (el.dataset.state === 'scrolling') {
-      el.scrollTop += 1;
-      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 2) {
-        el.dataset.state = 'bottom_pause';
-        el.dataset.pauseUntil = Date.now() + 3000;
-      }
-      return;
-    }
-
-    if (el.dataset.state === 'bottom_pause') {
-      if (Date.now() >= Number(el.dataset.pauseUntil)) {
-        delete el.dataset.state;
-        delete el.dataset.pauseUntil;
-        if (callbackSelesai) {
-          callbackSelesai();
-        } else {
-          el.scrollTop = 0;
-        }
-      }
-    }
-  }
-
-  function jalankanAutoScrollOtomatis() {
-    if (timerAutoScroll) clearInterval(timerAutoScroll);
-
-    timerAutoScroll = setInterval(function() {
-      const pengumumanSlide = document.getElementById('dashboardPengumumanSlide');
-      if (pengumumanSlide && !pengumumanSlide.hidden) {
-        kelolaAutoScrollElemen(pengumumanSlide, function() {
-          pindahKeSlideBerikutnya();
-        });
-      }
-
-      document.querySelectorAll('.agenda-panel').forEach(function(panel) {
-        kelolaAutoScrollElemen(panel, null);
-      });
-
-      const pengumumanContent = document.querySelector('.announcement-content');
-      if (pengumumanContent && document.getElementById('page-pengumuman').classList.contains('active')) {
-        kelolaAutoScrollElemen(pengumumanContent, null);
-      }
-    }, 35);
   }
 
   function tampilkanDaftarEditPengumuman(daftar) {
     const wadah = document.getElementById('daftarEditPengumuman');
+
     if (!daftar || !daftar.length) {
-      if (wadah) wadah.innerHTML = '<div class="card empty">Belum ada pengumuman untuk diedit.</div>';
+      wadah.innerHTML =
+        '<div class="card empty">Belum ada pengumuman untuk diedit.</div>';
       return;
     }
 
-    if (wadah) {
-      wadah.innerHTML = daftar.map(function(item) {
-        return `
-          <article class="announcement-edit-row">
-            <div class="announcement-edit-copy">
-              <strong>${aman(item.keterangan || 'Tanpa judul')}</strong>
-              <span>
-                ${aman(item.isi)} · ${formatTanggal(item.tanggal)}
-                ${item.sasaran ? ' · Sasaran: ' + aman(item.sasaran) : ''}
-              </span>
-            </div>
-            <button class="button secondary" type="button" data-edit-pengumuman="${Number(item.nomorBaris)}">Edit</button>
-          </article>
-        `;
-      }).join('');
-    }
+    wadah.innerHTML = daftar.map(function(item) {
+      return `
+        <article class="announcement-edit-row">
+          <div class="announcement-edit-copy">
+            <strong>${aman(item.keterangan || 'Tanpa judul')}</strong>
+            <span>
+              ${aman(item.isi)} · ${formatTanggal(item.tanggal)}
+              ${item.sasaran
+                ? ' · Sasaran: ' + aman(item.sasaran)
+                : ''}
+            </span>
+          </div>
+          <button class="button secondary" type="button"
+            data-edit-pengumuman="${Number(item.nomorBaris)}">Edit</button>
+        </article>
+      `;
+    }).join('');
   }
 
   function rincianKelasTingkat(item) {
     const bagian = [];
     if (item.kelas) bagian.push(aman(item.kelas));
     if (item.tingkat) bagian.push(aman(item.tingkat));
-    return bagian.length ? '<span class="task-meta">' + bagian.join(' · ') + '</span>' : '';
+
+    return bagian.length
+      ? '<span class="task-meta">' + bagian.join(' · ') + '</span>'
+      : '';
   }
 
   function tampilkanDashboard(data) {
     dataDashboardTersimpan = data;
     tampilkanAgenda('agendaHariIni', data.agendaHariIni || []);
     document.getElementById('judulAgendaRentang').textContent = rentangAgendaTerpilih === 'bulan' ? 'Agenda Bulan Ini' : 'Agenda Pekan Ini';
-    
-    // MENYARING AGENDA HARI INI DARI RENTANG PEKAN / BULAN
-    const hariIniISO = tanggalHariIniLokal();
-    const sumberRentang = rentangAgendaTerpilih === 'bulan' ? (data.agendaBulanIni || []) : (data.agendaPekanIni || []);
-    const rentangTanpaHariIni = sumberRentang.filter(function(item) {
-      return String(item.tanggal || '').slice(0, 10) !== hariIniISO;
-    });
-
-    tampilkanAgendaRentang(rentangTanpaHariIni);
+    tampilkanAgendaRentang(rentangAgendaTerpilih === 'bulan' ? data.agendaBulanIni : data.agendaPekanIni);
 
     const salat = data.waktuShalatBerikutnya;
+
     if (salat && salat.targetMillis) {
       targetSalatMillis = Number(salat.targetMillis);
-      document.getElementById('salatBerikutnya').textContent = 'Menuju waktu ' + salat.nama;
-      document.getElementById('jamSalatBerikutnya').textContent = 'Jadwal ' + salat.jam + ' WIB · Pasuruan';
+      document.getElementById('salatBerikutnya').textContent =
+        'Menuju waktu ' + salat.nama;
+      document.getElementById('jamSalatBerikutnya').textContent =
+        'Jadwal ' + salat.jam + ' WIB · Pasuruan';
       perbaruiHitungMundurSalat();
     } else {
-      document.getElementById('salatBerikutnya').textContent = 'Jadwal salat belum tersedia';
+      document.getElementById('salatBerikutnya').textContent =
+        'Jadwal salat belum tersedia';
       document.getElementById('jamSalatBerikutnya').textContent = '';
     }
 
     const anggota = data.anggota || [];
-    const totalHalaman = Math.max(1, Math.ceil(anggota.length / JUMLAH_ANGGOTA_PER_HALAMAN));
+    const totalHalaman = Math.max(
+      1,
+      Math.ceil(anggota.length / JUMLAH_ANGGOTA_PER_HALAMAN)
+    );
 
     if (halamanAnggota >= totalHalaman) halamanAnggota = 0;
 
     const awal = halamanAnggota * JUMLAH_ANGGOTA_PER_HALAMAN;
-    const terlihat = anggota.slice(awal, awal + JUMLAH_ANGGOTA_PER_HALAMAN);
+    const terlihat = anggota.slice(
+      awal,
+      awal + JUMLAH_ANGGOTA_PER_HALAMAN
+    );
 
-    document.getElementById('pagerDashboard').textContent = anggota.length
-      ? 'Anggota ' + (awal + 1) + '–' + Math.min(awal + JUMLAH_ANGGOTA_PER_HALAMAN, anggota.length) + ' dari ' + anggota.length
-      : '';
+    document.getElementById('pagerDashboard').textContent =
+      anggota.length
+        ? 'Anggota ' + (awal + 1) + '–' +
+          Math.min(awal + JUMLAH_ANGGOTA_PER_HALAMAN, anggota.length) +
+          ' dari ' + anggota.length
+        : '';
 
     const wadah = document.getElementById('anggotaDashboard');
+
     if (!terlihat.length) {
-      wadah.innerHTML = '<div class="empty">Tidak ada tugas anggota yang aktif hari ini.</div>';
+      wadah.innerHTML =
+        '<div class="empty">Tidak ada tugas anggota yang aktif hari ini.</div>';
     } else {
       wadah.innerHTML = terlihat.map(function(orang) {
         const daftar = (orang.daftarTugas || []).map(function(item) {
-          const kelasStatus = item.status === 'Selesai' ? 'status-selesai' : item.status === 'Proses' ? 'status-proses' : 'status-telat';
-          return '<li>' + aman(item.tugas) + rincianKelasTingkat(item) +
-            '<span class="task-period">' + formatTanggal(item.mulai) + ' – ' + formatTanggal(item.selesai) + '</span>' +
-            '<span class="task-status ' + kelasStatus + '">' + aman(item.status) + '</span></li>';
+          const kelasStatus = item.status === 'Selesai'
+            ? 'status-selesai'
+            : item.status === 'Proses'
+              ? 'status-proses'
+              : 'status-telat';
+
+          return '<li>' + aman(item.tugas) +
+            rincianKelasTingkat(item) +
+            '<span class="task-period">' +
+            formatTanggal(item.mulai) + ' – ' +
+            formatTanggal(item.selesai) + '</span>' +
+            '<span class="task-status ' + kelasStatus + '">' +
+            aman(item.status) + '</span></li>';
         }).join('');
 
         return `
@@ -1979,9 +2058,18 @@
             <div class="task-label">Tugas hari ini</div>
             <ol class="task-list">${daftar}</ol>
             <div class="counts">
-              <div class="count-box"><strong>${Number(orang.selesai || 0)}</strong><span>Selesai</span></div>
-              <div class="count-box"><strong>${Number(orang.proses || 0)}</strong><span>Proses</span></div>
-              <div class="count-box"><strong>${Number(orang.telat || 0)}</strong><span>Telat/Belum</span></div>
+              <div class="count-box">
+                <strong>${Number(orang.selesai || 0)}</strong>
+                <span>Selesai</span>
+              </div>
+              <div class="count-box">
+                <strong>${Number(orang.proses || 0)}</strong>
+                <span>Proses</span>
+              </div>
+              <div class="count-box">
+                <strong>${Number(orang.telat || 0)}</strong>
+                <span>Telat/Belum</span>
+              </div>
             </div>
           </article>
         `;
@@ -1989,6 +2077,7 @@
     }
 
     if (timerAnggota) clearInterval(timerAnggota);
+
     if (totalHalaman > 1) {
       timerAnggota = setInterval(function() {
         halamanAnggota = (halamanAnggota + 1) % totalHalaman;
@@ -2014,11 +2103,18 @@
   });
 
   function renderTabel(headers, rows) {
-    if (!rows.length) return '<div class="card empty">Belum ada data.</div>';
+    if (!rows.length) {
+      return '<div class="card empty">Belum ada data.</div>';
+    }
+
     return `
       <div class="table-wrap">
         <table>
-          <thead><tr>${headers.map(function(h) { return '<th>' + h + '</th>'; }).join('')}</tr></thead>
+          <thead>
+            <tr>${headers.map(function(header) {
+              return '<th>' + header + '</th>';
+            }).join('')}</tr>
+          </thead>
           <tbody>${rows.join('')}</tbody>
         </table>
       </div>
@@ -2026,166 +2122,150 @@
   }
 
   function tampilkanModulTambahan(data) {
-    const catatan = data.catatan||[], kalender = data.kalender||[], ujian = data.tugasKoreksiUjian||[], rekapUjian = data.rekapKoreksiUjian||[];
-    document.getElementById('daftarCatatan').innerHTML = renderTabel(['NO','POKOK MASALAH','NOTULA RAPAT','PIC','KET'],catatan.map(function(x){return '<tr><td>'+aman(x.no)+'</td><td>'+aman(x.pokokMasalah)+'</td><td>'+aman(x.notula)+'</td><td>'+aman(x.pic)+'</td><td>'+aman(x.ket)+'</td></tr>';}));
-    document.getElementById('daftarKalender').innerHTML = renderTabel(['Tanggal','Jam','Kegiatan','PIC','Ditampilkan sebagai'],kalender.map(function(x){return '<tr><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+aman(x.jam||'—')+'</td><td>'+aman(x.kegiatan)+(x.keterangan?' · '+aman(x.keterangan):'')+'</td><td>'+aman(x.pic)+'</td><td>'+(x.sebagaiAgenda?'Agenda':'Kegiatan saja')+'</td></tr>';}));
+    const catatan=data.catatan||[], kalender=data.kalender||[], ujian=data.tugasKoreksiUjian||[], rekapUjian=data.rekapKoreksiUjian||[];
+    document.getElementById('daftarCatatan').innerHTML=renderTabel(['NO','POKOK MASALAH','NOTULA RAPAT','PIC','KET'],catatan.map(function(x){return '<tr><td>'+aman(x.no)+'</td><td>'+aman(x.pokokMasalah)+'</td><td>'+aman(x.notula)+'</td><td>'+aman(x.pic)+'</td><td>'+aman(x.ket)+'</td></tr>';}));
+    document.getElementById('daftarKalender').innerHTML=renderTabel(['Tanggal','Jam','Kegiatan','PIC','Ditampilkan sebagai'],kalender.map(function(x){return '<tr><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+aman(x.jam||'—')+'</td><td>'+aman(x.kegiatan)+(x.keterangan?' · '+aman(x.keterangan):'')+'</td><td>'+aman(x.pic)+'</td><td>'+(x.sebagaiAgenda?'Agenda':'Kegiatan saja')+'</td></tr>';}));
     gambarKalender(kalender);
-    isiPilihanTugas(data.dataAnggota||[], data.materiPelajaran||[]);
+    isiPilihanTugas(data.dataAnggota||[],data.materiPelajaran||[]);
     tampilkanAntrianKoreksiBersama(data.antrianKoreksiBersama||[]);
-    document.getElementById('daftarTugasUjian').innerHTML = renderTabel(['Anggota','Tugas','Kelas','Tingkat','Tanggal','Status','Aksi'],ujian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+aman(x.status)+'</td><td>'+(x.status.toLowerCase()==='selesai'?'Selesai':'<button class="button small" data-action="selesaiUjian" data-row="'+x.nomorBaris+'">Tandai Selesai</button>')+'</td></tr>';}));
-    document.getElementById('daftarRekapUjian').innerHTML = renderTabel(['Anggota','Tugas Koreksi Ujian','Kelas','Tingkat','Tanggal tugas','Selesai dikerjakan'],rekapUjian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+formatTanggal(x.tanggalSelesaiPengerjaan)+'</td></tr>';}));
+    document.getElementById('daftarTugasUjian').innerHTML=renderTabel(['Anggota','Tugas','Kelas','Tingkat','Tanggal','Status','Aksi'],ujian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+aman(x.status)+'</td><td>'+(x.status.toLowerCase()==='selesai'?'Selesai':'<button class="button small" data-action="selesaiUjian" data-row="'+x.nomorBaris+'">Tandai Selesai</button>')+'</td></tr>';}));
+    document.getElementById('daftarRekapUjian').innerHTML=renderTabel(['Anggota','Tugas Koreksi Ujian','Kelas','Tingkat','Tanggal tugas','Selesai dikerjakan'],rekapUjian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+formatTanggal(x.tanggalSelesaiPengerjaan)+'</td></tr>';}));
   }
 
+  /* OTOMASI PANGGILAN DROPDOWN NAMA, TINGKAT, KELAS, DAN FAN */
   function isiPilihanTugas(anggota, materi) {
     const namaSelect = document.getElementById('tugasNama');
     if (namaSelect) {
       const namaLama = namaSelect.value;
       namaSelect.innerHTML = '<option value="">Pilih nama anggota</option>' +
-        (anggota || []).map(function(x) { return '<option value="' + aman(x) + '">' + aman(x) + '</option>'; }).join('');
+        (anggota || []).map(function(x) {
+          return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
+        }).join('');
       if (anggota && anggota.indexOf(namaLama) >= 0) namaSelect.value = namaLama;
     }
 
     const tingkatVal = norm(document.getElementById('tugasTingkat').value);
-    const dataFiltered = (materi || []).filter(function(x) { return norm(x.tingkat) === tingkatVal; });
+    const dataFiltered = (materi || []).filter(function(x) {
+      return norm(x.tingkat) === tingkatVal;
+    });
 
     const kelasSelect = document.getElementById('tugasKelas');
     if (kelasSelect) {
       const kelasSebelum = kelasSelect.value;
       const kelasList = [...new Set(dataFiltered.map(function(x) { return x.kelas; }).filter(Boolean))];
+
       kelasSelect.innerHTML = '<option value="">Pilih kelas</option>' +
-        kelasList.map(function(x) { return '<option value="' + aman(x) + '">' + aman(x) + '</option>'; }).join('');
+        kelasList.map(function(x) {
+          return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
+        }).join('');
       if (kelasList.indexOf(kelasSebelum) >= 0) kelasSelect.value = kelasSebelum;
     }
 
     const kelasVal = norm(kelasSelect ? kelasSelect.value : '');
     let fanData = dataFiltered;
-    if (kelasVal) fanData = dataFiltered.filter(function(x) { return norm(x.kelas) === kelasVal; });
+    if (kelasVal) {
+      fanData = dataFiltered.filter(function(x) { return norm(x.kelas) === kelasVal; });
+    }
 
     const fanSelect = document.getElementById('tugasNamaTugas');
     if (fanSelect) {
       const fanSebelum = fanSelect.value;
       const fanList = [...new Set(fanData.map(function(x) { return x.materi || x.kelas; }).filter(Boolean))];
+
       fanSelect.innerHTML = '<option value="">Pilih Fan/Materi</option>' +
-        fanList.map(function(x) { return '<option value="' + aman(x) + '">' + aman(x) + '</option>'; }).join('');
-      if (fanList.indexOf(fanSebelum) >= 0) fanSelect.value = fanSebelum;
-    }
-  }
-
-  function updateMateriDropdown(idTingkat, idKelas, idFan, materi) {
-    const tingkatVal = norm(document.getElementById(idTingkat).value);
-    const dataFiltered = (materi || []).filter(function(x) { return norm(x.tingkat) === tingkatVal; });
-
-    const kelasSelect = document.getElementById(idKelas);
-    if (kelasSelect) {
-      const kelasSebelum = kelasSelect.value;
-      const kelasList = [...new Set(dataFiltered.map(function(x) { return x.kelas; }).filter(Boolean))];
-      kelasSelect.innerHTML = '<option value="">Pilih kelas</option>' +
-        kelasList.map(function(x) { return '<option value="' + aman(x) + '">' + aman(x) + '</option>'; }).join('');
-      if (kelasList.indexOf(kelasSebelum) >= 0) kelasSelect.value = kelasSebelum;
-    }
-
-    const kelasVal = norm(kelasSelect ? kelasSelect.value : '');
-    let fanData = dataFiltered;
-    if (kelasVal) fanData = dataFiltered.filter(function(x) { return norm(x.kelas) === kelasVal; });
-
-    const fanSelect = document.getElementById(idFan);
-    if (fanSelect) {
-      const fanSebelum = fanSelect.value;
-      const fanList = [...new Set(fanData.map(function(x) { return x.materi || x.kelas; }).filter(Boolean))];
-      fanSelect.innerHTML = '<option value="">Pilih Fan/Materi</option>' +
-        fanList.map(function(x) { return '<option value="' + aman(x) + '">' + aman(x) + '</option>'; }).join('');
+        fanList.map(function(x) {
+          return '<option value="' + aman(x) + '">' + aman(x) + '</option>';
+        }).join('');
       if (fanList.indexOf(fanSebelum) >= 0) fanSelect.value = fanSebelum;
     }
   }
 
   document.getElementById('tugasTingkat').addEventListener('change', function() {
-    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
+    isiPilihanTugas(
+      (dataAplikasiTersimpan || {}).dataAnggota || [],
+      (dataAplikasiTersimpan || {}).materiPelajaran || []
+    );
   });
 
   document.getElementById('tugasKelas').addEventListener('change', function() {
-    isiPilihanTugas((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || []);
+    isiPilihanTugas(
+      (dataAplikasiTersimpan || {}).dataAnggota || [],
+      (dataAplikasiTersimpan || {}).materiPelajaran || []
+    );
   });
 
   function tampilkanAntrianKoreksiBersama(daftar) {
-    const dataFiltered = saringDaftarTugas(daftar, 'kb');
-    const rows = (dataFiltered || []).map(function(item) {
-      return `
-        <tr>
-          <td>${aman(item.nama)}</td>
-          <td>${aman(item.tugas)}</td>
-          <td>${aman(item.kelas || '–')}</td>
-          <td>${aman(item.tingkat || '–')}</td>
-          <td>${formatTanggal(item.mulai)} – ${formatTanggal(item.selesai)}</td>
-          <td>${formatTanggal(item.tanggalK2)}</td>
-          <td><span class="badge waiting">Menunggu Koreksi Bersama</span></td>
-          <td>
-            <button class="button" data-action="selesaiBersama" data-row="${item.nomorBaris}">Tandai Selesai</button>
-            <button class="button secondary" data-action="kembaliKB" data-row="${item.nomorBaris}">Kembalikan</button>
-          </td>
-        </tr>
-      `;
-    });
-
-    document.getElementById('isiKoreksiBersama').innerHTML = renderTabel(
-      ['Anggota', 'Tugas/Soal', 'Kelas', 'Tingkat', 'Tanggal Tugas', 'Selesai Korektor 2', 'Status', 'Aksi'],
-      rows
-    );
+    daftar=saringDaftarTugas(daftar,'kb');
+    const rows=(daftar||[]).map(function(item){return '<tr><td>'+aman(item.nama)+'</td><td>'+aman(item.tugas)+'</td><td>'+aman(item.kelas||'–')+'</td><td>'+aman(item.tingkat||'–')+'</td><td>'+formatTanggal(item.mulai)+' – '+formatTanggal(item.selesai)+'</td><td>'+formatTanggal(item.tanggalK2)+'</td><td><span class="badge waiting">Menunggu Koreksi Bersama</span></td><td><button class="button" data-action="selesaiBersama" data-row="'+item.nomorBaris+'">Tandai sudah dikoreksi</button> <button class="button secondary" data-action="kembaliKB" data-row="'+item.nomorBaris+'">Kembalikan</button></td></tr>';});
+    document.getElementById('isiKoreksiBersama').innerHTML=renderTabel(['Anggota','Tugas/Soal','Kelas','Tingkat','Tanggal tugas','Selesai Korektor 2','Status','Aksi'],rows);
   }
 
   function gambarKalender(daftar) {
-    const y = bulanKalenderAktif.getFullYear(), m = bulanKalenderAktif.getMonth();
-    document.getElementById('judulBulanKalender').textContent = new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric'}).format(bulanKalenderAktif);
-    let html = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(function(n){ return '<div class="calendar-cell calendar-weekday">'+n+'</div>'; }).join('');
-    const offset = (new Date(y,m,1).getDay()+6)%7, total = new Date(y,m+1,0).getDate(), prev = new Date(y,m,0).getDate(), today = tanggalHariIniLokal();
-    for(let i=0; i<42; i++){
-      let d, muted = false;
-      if(i<offset){ d = new Date(y,m-1,prev-offset+i+1); muted = true; }
-      else if(i>=offset+total){ d = new Date(y,m+1,i-offset-total+1); muted = true; }
-      else d = new Date(y,m,i-offset+1);
-      const iso = d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
-      const events = (daftar||[]).filter(function(x){ return x.mulai<=iso && x.selesai>=iso; }).slice(0,2);
-      html += '<div class="calendar-cell '+(muted?'muted ':'')+(iso===today?'today':'')+'"><b>'+d.getDate()+'</b>'+events.map(function(x){ return '<div class="calendar-event" title="'+aman(x.kegiatan)+'">'+(x.jam?aman(x.jam)+' ':'')+aman(x.kegiatan)+'</div>'; }).join('')+'</div>';
+    const y=bulanKalenderAktif.getFullYear(), m=bulanKalenderAktif.getMonth();
+    document.getElementById('judulBulanKalender').textContent=new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric'}).format(bulanKalenderAktif);
+    let html=['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(function(n){return '<div class="calendar-cell calendar-weekday">'+n+'</div>';}).join('');
+    const offset=(new Date(y,m,1).getDay()+6)%7, total=new Date(y,m+1,0).getDate(), prev=new Date(y,m,0).getDate(), today=tanggalHariIniLokal();
+    for(let i=0;i<42;i++){let d,muted=false;if(i<offset){d=new Date(y,m-1,prev-offset+i+1);muted=true;}else if(i>=offset+total){d=new Date(y,m+1,i-offset-total+1);muted=true;}else d=new Date(y,m,i-offset+1);
+      const iso=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2),events=(daftar||[]).filter(function(x){return x.mulai<=iso&&x.selesai>=iso;}).slice(0,2);
+      html+='<div class="calendar-cell '+(muted?'muted ':'')+(iso===today?'today':'')+'"><b>'+d.getDate()+'</b>'+events.map(function(x){return '<div class="calendar-event" title="'+aman(x.kegiatan)+'">'+(x.jam?aman(x.jam)+' ':'')+aman(x.kegiatan)+'</div>';}).join('')+'</div>';
     }
-    document.getElementById('gridKalender').innerHTML = html;
+    document.getElementById('gridKalender').innerHTML=html;
   }
 
-  document.getElementById('kalenderSebelumnya').addEventListener('click', function(){ bulanKalenderAktif.setMonth(bulanKalenderAktif.getMonth()-1); gambarKalender((dataAplikasiTersimpan||{}).kalender||[]); });
-  document.getElementById('kalenderBerikutnya').addEventListener('click', function(){ bulanKalenderAktif.setMonth(bulanKalenderAktif.getMonth()+1); gambarKalender((dataAplikasiTersimpan||{}).kalender||[]); });
+  document.getElementById('kalenderSebelumnya').addEventListener('click',function(){bulanKalenderAktif.setMonth(bulanKalenderAktif.getMonth()-1);gambarKalender((dataAplikasiTersimpan||{}).kalender||[]);});
+  document.getElementById('kalenderBerikutnya').addEventListener('click',function(){bulanKalenderAktif.setMonth(bulanKalenderAktif.getMonth()+1);gambarKalender((dataAplikasiTersimpan||{}).kalender||[]);});
 
   function sambungkanFormTambahan(id, method) {
-    document.getElementById(id).addEventListener('submit', function(event){
-      event.preventDefault();
-      const form = event.currentTarget, data = Object.fromEntries(new FormData(form).entries());
-      if (id==='formKalender') data.tampilkanSebagaiAgenda = !!form.elements.tampilkanSebagaiAgenda.checked;
-      mintaPin().then(function(pin){
-        if (!pin) return;
-        const runner = google.script.run.withSuccessHandler(function(msg){ tampilkanNotifikasi(msg,'success'); form.reset(); muatAplikasi(); }).withFailureHandler(function(e){ tampilkanNotifikasi(e&&e.message?e.message:String(e),'error'); });
-        runner[method](data, pin);
-      });
+    document.getElementById(id).addEventListener('submit',function(event){event.preventDefault();const form=event.currentTarget,data=Object.fromEntries(new FormData(form).entries());
+      if(id==='formKalender')data.tampilkanSebagaiAgenda=!!form.elements.tampilkanSebagaiAgenda.checked;
+      mintaPin().then(function(pin){if(!pin)return;const runner=google.script.run.withSuccessHandler(function(msg){tampilkanNotifikasi(msg,'success');form.reset();muatAplikasi();}).withFailureHandler(function(e){tampilkanNotifikasi(e&&e.message?e.message:String(e),'error');});runner[method](data,pin);});
     });
   }
   sambungkanFormTambahan('formCatatan','simpanCatatan');
   sambungkanFormTambahan('formKalender','simpanKegiatanKalender');
+  sambungkanFormTambahan('formKoreksiBersama','simpanKoreksiBersama');
   sambungkanFormTambahan('formTugasUjian','simpanTugasKoreksiUjian');
 
   function tampilkanRekap(daftar) {
     daftar = saringDaftarTugas(daftar, 'rekap');
-    const jumlahSelesai = daftar.filter(function(item) { return statusTampilanRekap(item) === 'Selesai'; }).length;
-    const jumlahProses = daftar.filter(function(item) { return statusTampilanRekap(item) === 'Proses'; }).length;
-    const jumlahTelat = daftar.filter(function(item) { return statusTampilanRekap(item) === 'Telat/Belum'; }).length;
+
+    const jumlahSelesai = daftar.filter(function(item) {
+      return statusTampilanRekap(item) === 'Selesai';
+    }).length;
+
+    const jumlahProses = daftar.filter(function(item) {
+      return statusTampilanRekap(item) === 'Proses';
+    }).length;
+
+    const jumlahTelat = daftar.filter(function(item) {
+      return statusTampilanRekap(item) === 'Telat/Belum';
+    }).length;
 
     const ringkasan = `
       <div class="summary-grid">
-        <div class="summary-card"><strong>${daftar.length}</strong><span>Total tugas yang sudah dimulai</span></div>
-        <div class="summary-card"><strong>${jumlahSelesai}</strong><span>Tugas selesai</span></div>
-        <div class="summary-card"><strong>${jumlahProses}</strong><span>Proses</span></div>
-        <div class="summary-card"><strong>${jumlahTelat}</strong><span>Telat/Belum</span></div>
+        <div class="summary-card">
+          <strong>${daftar.length}</strong>
+          <span>Total tugas yang sudah dimulai</span>
+        </div>
+        <div class="summary-card">
+          <strong>${jumlahSelesai}</strong>
+          <span>Tugas selesai</span>
+        </div>
+        <div class="summary-card">
+          <strong>${jumlahProses}</strong>
+          <span>Proses</span>
+        </div>
+        <div class="summary-card">
+          <strong>${jumlahTelat}</strong>
+          <span>Telat/Belum</span>
+        </div>
       </div>
     `;
 
     const rows = daftar.map(function(item) {
       const selesai = item.status.toLowerCase() === 'selesai';
       const statusTampil = statusTampilanRekap(item);
+
       return `
         <tr>
           <td>${aman(item.nama)}</td>
@@ -2195,7 +2275,9 @@
           <td>${formatTanggal(item.mulai)} – ${formatTanggal(item.selesai)}</td>
           <td>${aman(statusTampil)}</td>
           <td>
-            <button class="button small ${selesai ? 'selected' : ''}" data-action="ubahStatus" data-status="Selesai" data-row="${item.nomorBaris}">Selesai</button>
+            <button class="button small ${selesai ? 'selected' : ''}"
+              data-action="ubahStatus" data-status="Selesai"
+              data-row="${item.nomorBaris}">Selesai</button>
           </td>
           <td>${aman(item.statusK1 || 'Menunggu')}</td>
           <td>${aman(item.statusK2 || 'Menunggu')}</td>
@@ -2204,11 +2286,25 @@
     });
 
     document.getElementById('isiRekap').innerHTML = ringkasan +
-      renderTabel(['Anggota', 'Tugas/Soal', 'Kelas', 'Tingkat', 'Tanggal tugas (mulai–selesai)', 'Status', 'Ubah status (admin)', 'Korektor 1', 'Korektor 2'], rows);
+      renderTabel(
+        [
+          'Anggota',
+          'Tugas/Soal',
+          'Kelas',
+          'Tingkat',
+          'Tanggal tugas (mulai–selesai)',
+          'Status',
+          'Ubah status (admin)',
+          'Korektor 1',
+          'Korektor 2'
+        ],
+        rows
+      );
   }
 
   function tampilkanAntrianK1(daftar) {
     daftar = saringDaftarTugas(daftar, 'k1');
+
     const rows = daftar.map(function(item) {
       return `
         <tr>
@@ -2220,7 +2316,8 @@
           <td>${formatTanggal(item.tanggalSelesaiPengerjaan)}</td>
           <td><span class="badge waiting">Menunggu Korektor 1</span></td>
           <td>
-            <button class="button" data-action="k1" data-row="${item.nomorBaris}">Tandai sudah dikoreksi</button>
+            <button class="button" data-action="k1"
+              data-row="${item.nomorBaris}">Tandai sudah dikoreksi</button>
             <button class="button secondary" data-action="kembaliK1" data-row="${item.nomorBaris}">Kembalikan</button>
           </td>
         </tr>
@@ -2228,13 +2325,23 @@
     });
 
     document.getElementById('isiKorektor1').innerHTML = renderTabel(
-      ['Anggota', 'Tugas/Soal', 'Kelas', 'Tingkat', 'Tanggal tugas', 'Selesai dikerjakan', 'Status', 'Aksi'],
+      [
+        'Anggota',
+        'Tugas/Soal',
+        'Kelas',
+        'Tingkat',
+        'Tanggal tugas',
+        'Selesai dikerjakan',
+        'Status',
+        'Aksi'
+      ],
       rows
     );
   }
 
   function tampilkanAntrianK2(daftar) {
     daftar = saringDaftarTugas(daftar, 'k2');
+
     const rows = daftar.map(function(item) {
       return `
         <tr>
@@ -2246,7 +2353,8 @@
           <td>${formatTanggal(item.tanggalK1)}</td>
           <td><span class="badge waiting">Menunggu Korektor 2</span></td>
           <td>
-            <button class="button" data-action="k2" data-row="${item.nomorBaris}">Tandai sudah dikoreksi</button>
+            <button class="button" data-action="k2"
+              data-row="${item.nomorBaris}">Tandai sudah dikoreksi</button>
             <button class="button secondary" data-action="kembaliK2" data-row="${item.nomorBaris}">Kembalikan</button>
           </td>
         </tr>
@@ -2254,13 +2362,681 @@
     });
 
     document.getElementById('isiKorektor2').innerHTML = renderTabel(
-      ['Anggota', 'Tugas/Soal', 'Kelas', 'Tingkat', 'Tanggal tugas', 'Selesai Korektor 1', 'Status', 'Aksi'],
+      [
+        'Anggota',
+        'Tugas/Soal',
+        'Kelas',
+        'Tingkat',
+        'Tanggal tugas',
+        'Selesai Korektor 1',
+        'Status',
+        'Aksi'
+      ],
       rows
     );
   }
 
+  function tampilkanDaftarRapat(daftar) {
+    const target = document.getElementById('daftarRapat');
+
+    if (!daftar || daftar.length === 0) {
+      target.innerHTML =
+        '<div class="card empty">Belum ada rapat. Tekan “Tambah Rapat” untuk membuat rapat.</div>';
+      return;
+    }
+
+    target.innerHTML = '<div class="table-wrap"><table>' +
+      '<thead><tr><th>No</th><th>Jenis</th><th>Nama Rapat</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody>' +
+      daftar.map(function(rapat, indeks) {
+        return '<tr>' +
+          '<td>' + (indeks + 1) + '</td>' +
+          '<td>' + aman(rapat.jenis) + '</td>' +
+          '<td><strong>' + aman(rapat.nama) + '</strong></td>' +
+          '<td>' + formatTanggal(rapat.tanggal) + '</td>' +
+          '<td>' +
+            '<button class="button small" data-rapat-action="absen" data-row="' +
+              rapat.nomorBaris + '">Absen</button> ' +
+            '<button class="button secondary small" data-rapat-action="peserta" data-row="' +
+              rapat.nomorBaris + '">Peserta</button> ' +
+            '<button class="button secondary small" data-rapat-action="rekap" data-row="' +
+              rapat.nomorBaris + '">Rekap</button> ' +
+            '<button class="button secondary small" data-rapat-action="edit" data-row="' +
+              rapat.nomorBaris + '">Edit</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
+  }
+
+  function bukaPanelPesertaRapat(rapat, mode) {
+    rapatTerpilih = Number(rapat.nomorBaris);
+
+    const panel = document.getElementById('panelPesertaRapat');
+    const pilihan = document.getElementById('pilihanNamaPesertaRapat');
+    const tombolSimpan = document.getElementById('simpanPesertaRapat');
+    const daftarPeserta = rapat.peserta || [];
+
+    panel.hidden = false;
+
+    document.getElementById('judulPanelRapat').textContent =
+      mode === 'absen'
+        ? 'Absensi: ' + rapat.nama
+        : mode === 'rekap'
+          ? 'Rekap: ' + rapat.nama
+          : 'Daftarkan Peserta: ' + rapat.nama;
+
+    pilihan.hidden = mode !== 'peserta';
+    tombolSimpan.hidden = mode !== 'peserta';
+
+    if (mode === 'peserta') {
+      const sudahTerdaftar = {};
+
+      daftarPeserta.forEach(function(item) {
+        sudahTerdaftar[String(item.nama).toLocaleLowerCase('id')] = true;
+      });
+
+      if (!daftarAnggotaRapatTersimpan.length) {
+        pilihan.innerHTML =
+          '<div class="empty">Daftar anggota belum terbaca. Periksa tab Anggota Rapat di spreadsheet.</div>';
+      } else {
+        pilihan.innerHTML = daftarAnggotaRapatTersimpan.map(function(nama) {
+          const kunci = String(nama).toLocaleLowerCase('id');
+          const dicentang = sudahTerdaftar[kunci] ? ' checked' : '';
+
+          return '<label class="rapat-roster-item">' +
+            '<input type="checkbox" name="pesertaRapat" value="' +
+            aman(nama) + '"' + dicentang + '>' +
+            '<span>' + aman(nama) + '</span>' +
+            '</label>';
+        }).join('');
+      }
+
+      document.getElementById('isiPesertaRapat').innerHTML = '';
+    } else {
+      const jumlahHadir = daftarPeserta.filter(function(item) {
+        return item.kehadiran === 'Hadir';
+      }).length;
+
+      const ringkasan = mode === 'rekap'
+        ? '<p><b>' + jumlahHadir + ' hadir</b> · ' +
+          (daftarPeserta.length - jumlahHadir) +
+          ' belum · ' + daftarPeserta.length + ' peserta</p>'
+        : '';
+
+      const barisPeserta = daftarPeserta.length
+        ? daftarPeserta.map(function(item) {
+            return '<div class="rapat-peserta-row">' +
+              '<span>' + aman(item.nama) + ' — <b>' +
+              aman(item.kehadiran) + '</b></span>' +
+              (mode === 'absen'
+                ? '<span>' +
+                  '<button class="button small" data-rapat-presensi="Hadir" data-nama="' +
+                    aman(item.nama) + '">Hadir</button>' +
+                  '<button class="button secondary small" data-rapat-presensi="Belum Absen" data-nama="' +
+                    aman(item.nama) + '">Belum</button>' +
+                  '</span>'
+                : '') +
+              '</div>';
+          }).join('')
+        : '<div class="empty">Belum ada peserta yang didaftarkan ke rapat ini.</div>';
+
+      document.getElementById('isiPesertaRapat').innerHTML =
+        ringkasan + barisPeserta;
+    }
+
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function muatAplikasi() {
+    google.script.run
+      .withSuccessHandler(function(data) {
+        halamanAnggota = 0;
+        dataAplikasiTersimpan = data;
+        
+        // Memuat seluruh tugas dari tab spreadsheet ke tabel Tambah Tugas
+        tampilkanTugasDiMenuTambah(data.semuaTugas || []);
+
+        tampilkanDashboard(data.dashboard);
+        mulaiSlideAgendaDashboard();
+        tampilkanPengumuman(data.pengumumanHariIni || []);
+        tampilkanDaftarEditPengumuman(data.semuaPengumuman || []);
+        tampilkanRekap(data.rekapSelesai || []);
+        tampilkanAntrianK1(data.antrianKorektor1 || []);
+        tampilkanAntrianK2(data.antrianKorektor2 || []);
+        tampilkanDaftarRapat(data.rapat || []);
+        tampilkanModulTambahan(data);
+      })
+      .withFailureHandler(function(error) {
+        console.error('Gagal memuat data:', error);
+      })
+      .getDataAplikasi();
+  }
+
+  function tutupModalPin(nilai) {
+    document.getElementById('pinOverlay').hidden = true;
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinError').textContent = '';
+
+    if (penyelesaiPin) {
+      penyelesaiPin(nilai);
+      penyelesaiPin = null;
+    }
+  }
+
+  document.querySelectorAll('[data-filter-group]').forEach(function(input) {
+    const perbaruiFilter = function() {
+      const grup = input.dataset.filterGroup;
+      if (grup === 'rekap') tampilkanRekap(dataRekapTersimpan);
+      if (grup === 'k1') tampilkanAntrianK1(dataK1Tersimpan);
+      if (grup === 'k2') tampilkanAntrianK2(dataK2Tersimpan);
+      if (grup === 'kb') tampilkanAntrianKoreksiBersama(dataKBTersimpan);
+    };
+
+    input.addEventListener('input', perbaruiFilter);
+    input.addEventListener('change', perbaruiFilter);
+  });
+
+  function mintaPin() {
+    if (pinAdmin) return Promise.resolve(pinAdmin);
+
+    document.getElementById('pinOverlay').hidden = false;
+    document.getElementById('pinInput').focus();
+
+    return new Promise(function(resolve) {
+      penyelesaiPin = resolve;
+    });
+  }
+
+  document.getElementById('pinCancel').addEventListener('click', function() {
+    tutupModalPin(null);
+  });
+
+  document.getElementById('pinOverlay').addEventListener('click', function(event) {
+    if (event.target.id === 'pinOverlay') tutupModalPin(null);
+  });
+
+  document.getElementById('pinForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const pin = document.getElementById('pinInput').value;
+
+    google.script.run
+      .withSuccessHandler(function(valid) {
+        if (valid) {
+          pinAdmin = pin;
+          tutupModalPin(pin);
+        } else {
+          document.getElementById('pinError').textContent = 'PIN admin salah.';
+          document.getElementById('pinInput').select();
+        }
+      })
+      .withFailureHandler(function() {
+        document.getElementById('pinError').textContent =
+          'PIN tidak dapat diperiksa. Coba lagi.';
+      })
+      .validasiPin(pin);
+  });
+
+  function jalankanAksi(method, args) {
+    mintaPin().then(function(pin) {
+      if (!pin) return;
+
+      const berhasil = function(pesan) {
+        tampilkanNotifikasi(
+          pesan || 'Perubahan berhasil disimpan.',
+          'success'
+        );
+        muatAplikasi();
+      };
+
+      const gagal = function(error) {
+        const pesan = error && error.message
+          ? error.message
+          : String(error);
+
+        if (pesan.toLowerCase().indexOf('pin') !== -1) pinAdmin = '';
+        tampilkanNotifikasi(pesan, 'error');
+      };
+
+      const runner = google.script.run
+        .withSuccessHandler(berhasil)
+        .withFailureHandler(gagal);
+
+      if (method === 'ubahStatusTugas') {
+        runner.ubahStatusTugas(args[0], args[1], pin);
+      } else if (method === 'tandaiKorektor1Selesai') {
+        runner.tandaiKorektor1Selesai(args[0], pin);
+      } else if (method === 'tandaiKorektor2Selesai') {
+        runner.tandaiKorektor2Selesai(args[0], pin);
+      } else if (method === 'kembalikanDariKorektor') {
+        runner.kembalikanDariKorektor(args[0], args[1], pin);
+      } else if (method === 'ubahStatusKoreksiBersama') {
+        runner.ubahStatusKoreksiBersama(args[0], args[1], pin);
+      } else if (method === 'tandaiKoreksiBersamaSelesai') {
+        runner.tandaiKoreksiBersamaSelesai(args[0], pin);
+      } else if (method === 'ubahStatusKoreksiUjian') {
+        runner.ubahStatusKoreksiUjian(args[0], args[1], pin);
+      } else if (method === 'tambahAgenda') {
+        runner.tambahAgenda(args[0], pin);
+      } else if (method === 'tambahTugas') {
+        runner.tambahTugas(args[0], pin);
+      }
+    });
+  }
+
+  document.addEventListener('click', function(event) {
+    const tombol = event.target.closest('[data-action]');
+    if (!tombol) return;
+
+    const baris = Number(tombol.dataset.row);
+    const aksi = tombol.dataset.action;
+
+    if (aksi === 'ubahStatus') {
+      jalankanAksi('ubahStatusTugas', [baris, tombol.dataset.status]);
+    } else if (aksi === 'k1') {
+      jalankanAksi('tandaiKorektor1Selesai', [baris]);
+    } else if (aksi === 'k2') {
+      jalankanAksi('tandaiKorektor2Selesai', [baris]);
+    } else if (aksi === 'kembaliK1' || aksi === 'kembaliK2') {
+      jalankanAksi('kembalikanDariKorektor', [baris, aksi === 'kembaliK1' ? 1 : 2]);
+    } else if (aksi === 'selesaiBersama') {
+      jalankanAksi('ubahStatusKoreksiBersama', [baris, 'Selesai']);
+      jalankanAksi('tandaiKoreksiBersamaSelesai', [baris]);
+    } else if (aksi === 'kembaliKB') {
+      jalankanAksi('kembalikanDariKorektor', [baris, 3]);
+    } else if (aksi === 'selesaiUjian') {
+      jalankanAksi('ubahStatusKoreksiUjian', [baris, 'Selesai']);
+    }
+  });
+
+  document.getElementById('tombolTambahRapat').addEventListener('click', function() {
+    const form = document.getElementById('formRapat');
+    form.reset();
+    document.getElementById('rapatNomorBaris').value = '';
+    form.hidden = !form.hidden;
+
+    if (!form.hidden) {
+      document.getElementById('rapatTanggal').value =
+        tanggalHariIniLokal();
+    }
+  });
+
+  document.getElementById('batalRapat').addEventListener('click', function() {
+    document.getElementById('formRapat').hidden = true;
+  });
+
+  document.getElementById('formRapat').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries());
+    const nomorBaris = document.getElementById('rapatNomorBaris').value;
+
+    mintaPin().then(function(pin) {
+      if (!pin) return;
+
+      google.script.run
+        .withSuccessHandler(function(pesan) {
+          tampilkanNotifikasi(pesan, 'success');
+          form.reset();
+          form.hidden = true;
+          document.getElementById('rapatNomorBaris').value = '';
+          muatAplikasi();
+        })
+        .withFailureHandler(function(error) {
+          tampilkanNotifikasi(
+            error && error.message ? error.message : String(error),
+            'error'
+          );
+        })
+        .simpanRapat(data, nomorBaris, pin);
+    });
+  });
+
+  document.getElementById('tutupPanelRapat').addEventListener('click', function() {
+    document.getElementById('panelPesertaRapat').hidden = true;
+  });
+
+  document.getElementById('simpanPesertaRapat')
+  .addEventListener('click', function() {
+    const daftarNama = Array.from(
+      document.querySelectorAll(
+        '#pilihanNamaPesertaRapat input[name="pesertaRapat"]:checked'
+      )
+    ).map(function(input) {
+      return input.value;
+    });
+
+    mintaPin().then(function(pin) {
+      if (!pin) return;
+
+      google.script.run
+        .withSuccessHandler(function(pesan) {
+          tampilkanNotifikasi(pesan, 'success');
+          muatAplikasi();
+        })
+        .withFailureHandler(function(error) {
+          tampilkanNotifikasi(
+            error && error.message ? error.message : String(error),
+            'error'
+          );
+        })
+        .simpanPesertaRapat(rapatTerpilih, daftarNama, pin);
+    });
+  });
+
+  document.addEventListener('click', function(event) {
+    const tombolAksi = event.target.closest('[data-rapat-action]');
+
+    if (tombolAksi) {
+      const rapat = daftarRapatTersimpan.find(function(item) {
+        return Number(item.nomorBaris) === Number(tombolAksi.dataset.row);
+      });
+
+      if (!rapat) return;
+
+      if (tombolAksi.dataset.rapatAction === 'edit') {
+        document.getElementById('rapatNomorBaris').value = rapat.nomorBaris;
+        document.getElementById('rapatJenis').value = rapat.jenis;
+        document.getElementById('rapatNama').value = rapat.nama;
+        document.getElementById('rapatTanggal').value = rapat.tanggal;
+        document.getElementById('formRapat').hidden = false;
+        document.getElementById('formRapat').scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      } else {
+        bukaPanelPesertaRapat(
+          rapat,
+          tombolAksi.dataset.rapatAction
+        );
+      }
+
+      return;
+    }
+
+    const tombolHadir = event.target.closest('[data-rapat-presensi]');
+    if (!tombolHadir) return;
+
+    const namaPeserta = tombolHadir.dataset.nama;
+    const status = tombolHadir.dataset.rapatPresensi;
+
+    mintaPin().then(function(pin) {
+      if (!pin) return;
+
+      google.script.run
+        .withSuccessHandler(function(pesan) {
+          tampilkanNotifikasi(pesan, 'success');
+
+          const rapat = daftarRapatTersimpan.find(function(item) {
+            return Number(item.nomorBaris) === rapatTerpilih;
+          });
+
+          if (rapat) {
+            const peserta = rapat.peserta.find(function(item) {
+              return item.nama === namaPeserta;
+            });
+
+            if (peserta) peserta.kehadiran = status;
+            bukaPanelPesertaRapat(rapat, 'absen');
+          }
+
+          muatAplikasi();
+        })
+        .withFailureHandler(function(error) {
+          tampilkanNotifikasi(
+            error && error.message ? error.message : String(error),
+            'error'
+          );
+        })
+        .tandaiKehadiranRapat(
+          rapatTerpilih,
+          namaPeserta,
+          status,
+          pin
+        );
+    });
+  });
+
+  document.getElementById('formAgenda').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries());
+    const pesan = document.getElementById('pesanAgenda');
+
+    pesan.className = 'message';
+    pesan.textContent = 'Meminta PIN admin…';
+
+    mintaPin().then(function(pin) {
+      if (!pin) {
+        pesan.textContent = 'Penyimpanan dibatalkan.';
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(hasil) {
+          pesan.className = 'message success';
+          pesan.textContent = hasil || 'Agenda berhasil ditambahkan.';
+          form.reset();
+          document.getElementById('agendaTanggal').value =
+            tanggalHariIniLokal();
+          muatAplikasi();
+        })
+        .withFailureHandler(function(error) {
+          pesan.className = 'message error';
+          pesan.textContent = error && error.message
+            ? error.message
+            : String(error);
+        })
+        .tambahAgenda(data, pin);
+    });
+  });
+
+  document.getElementById('tombolTambahPengumuman')
+    .addEventListener('click', function() {
+      const form = document.getElementById('formPengumuman');
+      barisPengumumanEdit = '';
+      document.getElementById('pengumumanNomorBaris').value = '';
+      form.reset();
+      form.querySelector('[type="submit"]').textContent =
+        'Simpan Pengumuman';
+      form.hidden = !form.hidden;
+
+      if (!form.hidden) {
+        document.getElementById('pengumumanTanggal').value =
+          tanggalHariIniLokal();
+        document.getElementById('pengumumanIsi').focus();
+      }
+    });
+
+  document.getElementById('tombolEditPengumuman')
+    .addEventListener('click', function() {
+      const daftar = document.getElementById('daftarEditPengumuman');
+      daftar.hidden = !daftar.hidden;
+      this.textContent = daftar.hidden
+        ? '✎ Edit Pengumuman'
+        : 'Tutup Daftar Edit';
+    });
+
+  document.getElementById('daftarEditPengumuman')
+    .addEventListener('click', function(event) {
+      const tombol = event.target.closest('[data-edit-pengumuman]');
+      if (!tombol) return;
+
+      const nomor = Number(tombol.dataset.editPengumuman);
+      const item = semuaPengumumanTersimpan.find(function(pengumuman) {
+        return Number(pengumuman.nomorBaris) === nomor;
+      });
+
+      if (!item) return;
+
+      barisPengumumanEdit = String(nomor);
+      document.getElementById('pengumumanNomorBaris').value =
+        barisPengumumanEdit;
+      document.getElementById('pengumumanTanggal').value = item.tanggal;
+      document.getElementById('pengumumanIsi').value = item.isi;
+      document.getElementById('pengumumanSasaran').value =
+        item.sasaran || '';
+      document.getElementById('pengumumanKeterangan').value =
+        item.keterangan || '';
+
+      document.querySelector('#formPengumuman [type="submit"]')
+        .textContent = 'Simpan Perubahan';
+      document.getElementById('formPengumuman').hidden = false;
+      document.getElementById('pesanPengumuman').textContent =
+        'Mengedit pengumuman tanggal ' +
+        formatTanggal(item.tanggal) + '.';
+      document.getElementById('formPengumuman').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
+
+  document.getElementById('batalPengumuman')
+    .addEventListener('click', function() {
+      const form = document.getElementById('formPengumuman');
+      form.hidden = true;
+      form.reset();
+      document.getElementById('pengumumanNomorBaris').value = '';
+      form.querySelector('[type="submit"]').textContent =
+        'Simpan Pengumuman';
+      document.getElementById('pesanPengumuman').textContent = '';
+      barisPengumumanEdit = '';
+    });
+
+  document.getElementById('formPengumuman')
+    .addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const form = event.currentTarget;
+      const pesan = document.getElementById('pesanPengumuman');
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      pesan.className = 'message';
+      pesan.textContent = 'Meminta PIN admin…';
+
+      mintaPin().then(function(pin) {
+        if (!pin) {
+          pesan.textContent = 'Penyimpanan dibatalkan.';
+          return;
+        }
+
+        const runner = google.script.run
+          .withSuccessHandler(function(hasil) {
+            tampilkanNotifikasi(
+              hasil || 'Pengumuman berhasil disimpan.',
+              'success'
+            );
+            form.reset();
+            form.hidden = true;
+            barisPengumumanEdit = '';
+            document.getElementById('pengumumanNomorBaris').value = '';
+            form.querySelector('[type="submit"]').textContent =
+              'Simpan Pengumuman';
+            pesan.textContent = '';
+            muatAplikasi();
+          })
+          .withFailureHandler(function(error) {
+            const teks = error && error.message
+              ? error.message
+              : String(error);
+
+            pesan.className = 'message error';
+            pesan.textContent = teks;
+            tampilkanNotifikasi(teks, 'error');
+          });
+
+        if (barisPengumumanEdit) {
+          runner.ubahPengumuman(
+            Number(barisPengumumanEdit),
+            data,
+            pin
+          );
+        } else {
+          runner.tambahPengumuman(data, pin);
+        }
+      });
+    });
+
+  document.getElementById('formTugas').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries());
+    const pesan = document.getElementById('pesanTugas');
+
+    pesan.className = 'message';
+    pesan.textContent = 'Meminta PIN admin…';
+
+    mintaPin().then(function(pin) {
+      if (!pin) {
+        pesan.textContent = 'Penyimpanan dibatalkan.';
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(hasil) {
+          pesan.className = 'message success';
+          pesan.textContent = hasil || 'Tugas berhasil ditambahkan.';
+          form.reset();
+          document.getElementById('tugasMulai').value =
+            tanggalHariIniLokal();
+          document.getElementById('tugasSelesai').value =
+            tanggalHariIniLokal();
+          muatAplikasi();
+        })
+        .withFailureHandler(function(error) {
+          pesan.className = 'message error';
+          pesan.textContent = error && error.message
+            ? error.message
+            : String(error);
+        })
+        .tambahTugas(data, pin);
+    });
+  });
+
+  document.getElementById('sidebarToggle').addEventListener('click', function() {
+    const hidden=document.body.classList.toggle('sidebar-hidden');
+    this.textContent=hidden?'☰':'×';
+    this.title=hidden?'Tampilkan menu':'Sembunyikan menu';
+  });
+
+  function aturTombolTema() {
+    const terang = document.body.dataset.theme === 'light';
+    document.getElementById('themeToggle').textContent = terang ? '🌙' : '☀️';
+  }
+
+  let temaTersimpan = 'dark';
+  try {
+    temaTersimpan = localStorage.getItem('labsoma-theme') || 'dark';
+  } catch (e) {}
+
+  document.body.dataset.theme = temaTersimpan;
+  aturTombolTema();
+
+  document.getElementById('themeToggle').addEventListener('click', function() {
+    const temaBaru =
+      document.body.dataset.theme === 'light' ? 'dark' : 'light';
+    document.body.dataset.theme = temaBaru;
+
+    try {
+      localStorage.setItem('labsoma-theme', temaBaru);
+    } catch (e) {}
+
+    aturTombolTema();
+  });
+
+  function perbaruiTombolLayarPenuh() {
+    const penuh = Boolean(document.fullscreenElement);
+    document.body.classList.toggle('dashboard-fullscreen', penuh);
+    document.getElementById('fullscreenToggle').textContent = penuh ? '↙' : '⛶';
+  }
+
+  // Tampilkan daftar semua tugas di menu Tambah Tugas
   function tampilkanTugasDiMenuTambah(semuaTugas) {
     const dataFiltered = saringDaftarTugas(semuaTugas, 'tugasMenu');
+
     const rows = (dataFiltered || []).map(function(item) {
       return `
         <tr>
@@ -2278,269 +3054,55 @@
       `;
     });
 
-    const wadah = document.getElementById('daftarTugasDalamMenu');
-    if (wadah) {
-      wadah.innerHTML = renderTabel(
-        ['Anggota', 'Tugas/Soal', 'Kelas', 'Tingkat', 'Tanggal Tugas', 'Status', 'Aksi'],
-        rows
-      );
-    }
+    document.getElementById('daftarTugasDalamMenu').innerHTML = renderTabel(
+      ['Anggota', 'Tugas/Soal', 'Kelas', 'Tingkat', 'Tanggal Tugas', 'Status', 'Aksi'],
+      rows
+    );
   }
 
-  function tampilkanDaftarRapat(daftar) {
-    const target = document.getElementById('daftarRapat');
-    if (!daftar || daftar.length === 0) {
-      target.innerHTML = '<div class="card empty">Belum ada rapat. Tekan “Tambah Rapat” untuk membuat rapat.</div>';
-      return;
-    }
+  // Update fungsi muatAplikasi agar memanggil tabel di menu Tambah Tugas
+  // Pastikan di dalam fungsi muatAplikasi() terdapat baris berikut:
+  // tampilkanTugasDiMenuTambah(data.semuaTugas || []);
 
-    target.innerHTML = '<div class="table-wrap"><table>' +
-      '<thead><tr><th>No</th><th>Jenis</th><th>Nama Rapat</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody>' +
-      daftar.map(function(rapat, indeks) {
-        return '<tr>' +
-          '<td>' + (indeks + 1) + '</td>' +
-          '<td>' + aman(rapat.jenis) + '</td>' +
-          '<td><strong>' + aman(rapat.nama) + '</strong></td>' +
-          '<td>' + formatTanggal(rapat.tanggal) + '</td>' +
-          '<td>' +
-            '<button class="button small" data-rapat-action="absen" data-row="' + rapat.nomorBaris + '">Absen</button> ' +
-            '<button class="button secondary small" data-rapat-action="peserta" data-row="' + rapat.nomorBaris + '">Peserta</button> ' +
-            '<button class="button secondary small" data-rapat-action="rekap" data-row="' + rapat.nomorBaris + '">Rekap</button> ' +
-            '<button class="button secondary small" data-rapat-action="edit" data-row="' + rapat.nomorBaris + '">Edit</button>' +
-          '</td>' +
-        '</tr>';
-      }).join('') +
-      '</tbody></table></div>';
-  }
-
-  function bukaPanelPesertaRapat(rapat, mode) {
-    rapatTerpilih = Number(rapat.nomorBaris);
-
-    const panel = document.getElementById('panelPesertaRapat');
-    const pilihan = document.getElementById('pilihanNamaPesertaRapat');
-    const tombolSimpan = document.getElementById('simpanPesertaRapat');
-    const daftarPeserta = rapat.peserta || [];
-
-    panel.hidden = false;
-    document.getElementById('judulPanelRapat').textContent = mode === 'absen' ? 'Absensi: ' + rapat.nama : mode === 'rekap' ? 'Rekap: ' + rapat.nama : 'Daftarkan Peserta: ' + rapat.nama;
-
-    pilihan.hidden = mode !== 'peserta';
-    tombolSimpan.hidden = mode !== 'peserta';
-
-    if (mode === 'peserta') {
-      const sudahTerdaftar = {};
-      daftarPeserta.forEach(function(item) { sudahTerdaftar[String(item.nama).toLocaleLowerCase('id')] = true; });
-
-      if (!daftarAnggotaRapatTersimpan.length) {
-        pilihan.innerHTML = '<div class="empty">Daftar anggota belum terbaca. Periksa tab Anggota Rapat di spreadsheet.</div>';
-      } else {
-        pilihan.innerHTML = daftarAnggotaRapatTersimpan.map(function(nama) {
-          const kunci = String(nama).toLocaleLowerCase('id');
-          const dicentang = sudahTerdaftar[kunci] ? ' checked' : '';
-          return '<label class="rapat-roster-item"><input type="checkbox" name="pesertaRapat" value="' + aman(nama) + '"' + dicentang + '><span>' + aman(nama) + '</span></label>';
-        }).join('');
-      }
-      document.getElementById('isiPesertaRapat').innerHTML = '';
-    } else {
-      const jumlahHadir = daftarPeserta.filter(function(item) { return item.kehadiran === 'Hadir'; }).length;
-      const ringkasan = mode === 'rekap' ? '<p><b>' + jumlahHadir + ' hadir</b> · ' + (daftarPeserta.length - jumlahHadir) + ' belum · ' + daftarPeserta.length + ' peserta</p>' : '';
-      const barisPeserta = daftarPeserta.length
-        ? daftarPeserta.map(function(item) {
-            return '<div class="rapat-peserta-row"><span>' + aman(item.nama) + ' — <b>' + aman(item.kehadiran) + '</b></span>' +
-              (mode === 'absen' ? '<span><button class="button small" data-rapat-presensi="Hadir" data-nama="' + aman(item.nama) + '">Hadir</button><button class="button secondary small" data-rapat-presensi="Belum Absen" data-nama="' + aman(item.nama) + '">Belum</button></span>' : '') +
-              '</div>';
-          }).join('')
-        : '<div class="empty">Belum ada peserta yang didaftarkan ke rapat ini.</div>';
-
-      document.getElementById('isiPesertaRapat').innerHTML = ringkasan + barisPeserta;
-    }
-
-    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function muatAplikasi() {
-    google.script.run
-      .withSuccessHandler(function(data) {
-        halamanAnggota = 0;
-        dataAplikasiTersimpan = data;
-        dataRekapTersimpan = data.rekapSelesai || [];
-        dataK1Tersimpan = data.antrianKorektor1 || [];
-        dataK2Tersimpan = data.antrianKorektor2 || [];
-        dataKBTersimpan = data.antrianKoreksiBersama || [];
-        daftarRapatTersimpan = data.rapat || [];
-        daftarAnggotaRapatTersimpan = data.daftarAnggotaRapat || [];
-        pengumumanDashboard = data.pengumumanHariIni || [];
-        semuaPengumumanTersimpan = data.semuaPengumuman || [];
-
-        tampilkanTugasDiMenuTambah(data.semuaTugas || []);
-        tampilkanDashboard(data.dashboard);
-        mulaiSlideAgendaDashboard();
-        tampilkanPengumuman(data.pengumumanHariIni || []);
-        tampilkanDaftarEditPengumuman(semuaPengumumanTersimpan);
-        tampilkanRekap(dataRekapTersimpan);
-        tampilkanAntrianK1(dataK1Tersimpan);
-        tampilkanAntrianK2(dataK2Tersimpan);
-        tampilkanDaftarRapat(daftarRapatTersimpan);
-        tampilkanModulTambahan(data);
-        
-        jalankanAutoScrollOtomatis();
-      })
-      .withFailureHandler(function(error) {
-        const pesan = error && error.message ? error.message : String(error);
-        const pager = document.getElementById('pagerDashboard');
-        if (pager) pager.textContent = 'Gagal memuat data: ' + pesan;
-        tampilkanNotifikasi('Gagal memuat data: ' + pesan, 'error');
-      })
-      .getDataAplikasi();
-  }
-
-  function tutupModalPin(nilai) {
-    document.getElementById('pinOverlay').hidden = true;
-    document.getElementById('pinInput').value = '';
-    document.getElementById('pinError').textContent = '';
-    if (penyelesaiPin) { penyelesaiPin(nilai); penyelesaiPin = null; }
-  }
-
-  document.querySelectorAll('[data-filter-group]').forEach(function(input) {
-    const perbaruiFilter = function() {
-      const grup = input.dataset.filterGroup;
-      if (grup === 'rekap') tampilkanRekap(dataRekapTersimpan);
-      if (grup === 'k1') tampilkanAntrianK1(dataK1Tersimpan);
-      if (grup === 'k2') tampilkanAntrianK2(dataK2Tersimpan);
-      if (grup === 'kb') tampilkanAntrianKoreksiBersama(dataKBTersimpan);
-      if (grup === 'tugasMenu') tampilkanTugasDiMenuTambah((dataAplikasiTersimpan || {}).semuaTugas || []);
-    };
-    input.addEventListener('input', perbaruiFilter);
-    input.addEventListener('change', perbaruiFilter);
-  });
-
-  function mintaPin() {
-    if (pinAdmin) return Promise.resolve(pinAdmin);
-    document.getElementById('pinOverlay').hidden = false;
-    document.getElementById('pinInput').focus();
-    return new Promise(function(resolve) { penyelesaiPin = resolve; });
-  }
-
-  document.getElementById('pinCancel').addEventListener('click', function() { tutupModalPin(null); });
-  document.getElementById('pinOverlay').addEventListener('click', function(event) { if (event.target.id === 'pinOverlay') tutupModalPin(null); });
-
-  document.getElementById('pinForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const pin = document.getElementById('pinInput').value;
-
-    google.script.run
-      .withSuccessHandler(function(valid) {
-        if (valid) { pinAdmin = pin; tutupModalPin(pin); }
-        else {
-          document.getElementById('pinError').textContent = 'PIN admin salah.';
-          document.getElementById('pinInput').select();
-        }
-      })
-      .withFailureHandler(function() {
-        document.getElementById('pinError').textContent = 'PIN tidak dapat diperiksa. Coba lagi.';
-      })
-      .validasiPin(pin);
-  });
-
-  function jalankanAksi(method, args) {
-    mintaPin().then(function(pin) {
-      if (!pin) return;
-
-      const berhasil = function(pesan) {
-        tampilkanNotifikasi(pesan || 'Perubahan berhasil disimpan.', 'success');
-        muatAplikasi();
-      };
-
-      const gagal = function(error) {
-        const pesan = error && error.message ? error.message : String(error);
-        if (pesan.toLowerCase().indexOf('pin') !== -1) pinAdmin = '';
-        tampilkanNotifikasi(pesan, 'error');
-      };
-
-      const runner = google.script.run.withSuccessHandler(berhasil).withFailureHandler(gagal);
-
-      if (method === 'ubahStatusTugas') runner.ubahStatusTugas(args[0], args[1], pin);
-      else if (method === 'tandaiKorektor1Selesai') runner.tandaiKorektor1Selesai(args[0], pin);
-      else if (method === 'tandaiKorektor2Selesai') runner.tandaiKorektor2Selesai(args[0], pin);
-      else if (method === 'kembalikanDariKorektor') runner.kembalikanDariKorektor(args[0], args[1], pin);
-      else if (method === 'ubahStatusKoreksiBersama') runner.ubahStatusKoreksiBersama(args[0], args[1], pin);
-      else if (method === 'tandaiKoreksiBersamaSelesai') runner.tandaiKoreksiBersamaSelesai(args[0], pin);
-      else if (method === 'ubahStatusKoreksiUjian') runner.ubahStatusKoreksiUjian(args[0], args[1], pin);
-      else if (method === 'tambahAgenda') runner.tambahAgenda(args[0], pin);
-      else if (method === 'tambahTugas') runner.tambahTugas(args[0], pin);
+  // Event Listener Pencarian di Menu Tambah Tugas
+  document.querySelectorAll('[data-filter-group="tugasMenu"]').forEach(function(input) {
+    input.addEventListener('input', function() {
+      tampilkanTugasDiMenuTambah((dataAplikasiTersimpan || {}).semuaTugas || []);
     });
-  }
+  });
 
+  // Handle Klik Tombol Edit
   document.addEventListener('click', function(event) {
-    const tombol = event.target.closest('[data-action]');
+    const tombol = event.target.closest('[data-action="editTugas"]');
     if (!tombol) return;
 
-    const baris = Number(tombol.dataset.row);
-    const aksi = tombol.dataset.action;
+    const nomorBaris = Number(tombol.dataset.row);
+    const semuaTugas = (dataAplikasiTersimpan || {}).semuaTugas || [];
+    const item = semuaTugas.find(x => Number(x.nomorBaris) === nomorBaris);
 
-    if (aksi === 'ubahStatus') jalankanAksi('ubahStatusTugas', [baris, tombol.dataset.status]);
-    else if (aksi === 'k1') jalankanAksi('tandaiKorektor1Selesai', [baris]);
-    else if (aksi === 'k2') jalankanAksi('tandaiKorektor2Selesai', [baris]);
-    else if (aksi === 'kembaliK1' || aksi === 'kembaliK2') jalankanAksi('kembalikanDariKorektor', [baris, aksi === 'kembaliK1' ? 1 : 2]);
-    else if (aksi === 'selesaiBersama') {
-      jalankanAksi('ubahStatusKoreksiBersama', [baris, 'Selesai']);
-      jalankanAksi('tandaiKoreksiBersamaSelesai', [baris]);
-    }
-    else if (aksi === 'kembaliKB') jalankanAksi('kembalikanDariKorektor', [baris, 3]);
-    else if (aksi === 'selesaiUjian') jalankanAksi('ubahStatusKoreksiUjian', [baris, 'Selesai']);
-    else if (aksi === 'editTugas') {
-      const semuaTugas = (dataAplikasiTersimpan || {}).semuaTugas || [];
-      const item = semuaTugas.find(function(x) { return Number(x.nomorBaris) === baris; });
-      if (!item) return;
+    if (!item) return;
 
-      document.getElementById('editTugasRow').value = baris;
-      document.getElementById('editTugasMulai').value = item.mulai || '';
-      document.getElementById('editTugasSelesai').value = item.selesai || '';
-      isiPilihanTugasEdit((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || [], item);
-      document.getElementById('editTugasOverlay').hidden = false;
-    }
-    else if (aksi === 'hapusTugas') {
-      const semuaTugas = (dataAplikasiTersimpan || {}).semuaTugas || [];
-      const item = semuaTugas.find(function(x) { return Number(x.nomorBaris) === baris; });
-      const namaTugas = item ? item.tugas : 'tugas ini';
+    document.getElementById('editTugasRow').value = nomorBaris;
+    document.getElementById('editTugasTingkat').value = item.tingkat || '';
+    document.getElementById('editTugasMulai').value = item.mulai || '';
+    document.getElementById('editTugasSelesai').value = item.selesai || '';
 
-      if (confirm('Apakah Anda yakin ingin menghapus ' + namaTugas + '?')) {
-        mintaPin().then(function(pin) {
-          if (!pin) return;
-          google.script.run
-            .withSuccessHandler(function(pesan) {
-              tampilkanNotifikasi(pesan, 'success');
-              muatAplikasi();
-            })
-            .withFailureHandler(function(err) {
-              tampilkanNotifikasi(err && err.message ? err.message : String(err), 'error');
-            })
-            .hapusTugas(baris, pin);
-        });
-      }
-    }
+    isiPilihanTugasEdit((dataAplikasiTersimpan || {}).dataAnggota || [], (dataAplikasiTersimpan || {}).materiPelajaran || [], item);
+
+    document.getElementById('editTugasOverlay').hidden = false;
   });
 
   function isiPilihanTugasEdit(anggota, materi, item) {
     const namaSelect = document.getElementById('editTugasNama');
-    if (namaSelect) {
-      namaSelect.innerHTML = '<option value="">Pilih nama anggota</option>' +
-        (anggota || []).map(function(x) { return '<option value="' + aman(x) + '">' + aman(x) + '</option>'; }).join('');
-      namaSelect.value = item.nama || '';
-    }
-
-    const elTingkat = document.getElementById('editTugasTingkat');
-    if (elTingkat) elTingkat.value = item.tingkat || '';
+    namaSelect.innerHTML = '<option value="">Pilih nama anggota</option>' +
+      (anggota || []).map(x => `<option value="${aman(x)}">${aman(x)}</option>`).join('');
+    namaSelect.value = item.nama || '';
 
     updateMateriDropdown('editTugasTingkat', 'editTugasKelas', 'editTugasNamaTugas', materi);
     
-    const elKelas = document.getElementById('editTugasKelas');
-    if (elKelas) elKelas.value = item.kelas || '';
-
+    document.getElementById('editTugasKelas').value = item.kelas || '';
     updateMateriDropdown('editTugasTingkat', 'editTugasKelas', 'editTugasNamaTugas', materi);
-    
-    const elFan = document.getElementById('editTugasNamaTugas');
-    if (elFan) elFan.value = item.tugas || '';
+    document.getElementById('editTugasNamaTugas').value = item.tugas || '';
   }
 
   document.getElementById('editTugasTingkat').addEventListener('change', function() {
@@ -2575,279 +3137,33 @@
     });
   });
 
-  document.getElementById('tombolTambahRapat').addEventListener('click', function() {
-    const form = document.getElementById('formRapat');
-    form.reset();
-    document.getElementById('rapatNomorBaris').value = '';
-    form.hidden = !form.hidden;
-    if (!form.hidden) document.getElementById('rapatTanggal').value = tanggalHariIniLokal();
-  });
-
-  document.getElementById('batalRapat').addEventListener('click', function() { document.getElementById('formRapat').hidden = true; });
-
-  document.getElementById('formRapat').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form).entries());
-    const nomorBaris = document.getElementById('rapatNomorBaris').value;
-
-    mintaPin().then(function(pin) {
-      if (!pin) return;
-      google.script.run
-        .withSuccessHandler(function(pesan) {
-          tampilkanNotifikasi(pesan, 'success');
-          form.reset();
-          form.hidden = true;
-          document.getElementById('rapatNomorBaris').value = '';
-          muatAplikasi();
-        })
-        .withFailureHandler(function(error) {
-          tampilkanNotifikasi(error && error.message ? error.message : String(error), 'error');
-        })
-        .simpanRapat(data, nomorBaris, pin);
-    });
-  });
-
-  document.getElementById('tutupPanelRapat').addEventListener('click', function() { document.getElementById('panelPesertaRapat').hidden = true; });
-
-  document.getElementById('simpanPesertaRapat').addEventListener('click', function() {
-    const daftarNama = Array.from(document.querySelectorAll('#pilihanNamaPesertaRapat input[name="pesertaRapat"]:checked')).map(function(input) { return input.value; });
-
-    mintaPin().then(function(pin) {
-      if (!pin) return;
-      google.script.run
-        .withSuccessHandler(function(pesan) { tampilkanNotifikasi(pesan, 'success'); muatAplikasi(); })
-        .withFailureHandler(function(error) { tampilkanNotifikasi(error && error.message ? error.message : String(error), 'error'); })
-        .simpanPesertaRapat(rapatTerpilih, daftarNama, pin);
-    });
-  });
-
-  document.addEventListener('click', function(event) {
-    const tombolAksi = event.target.closest('[data-rapat-action]');
-    if (tombolAksi) {
-      const rapat = daftarRapatTersimpan.find(function(item) { return Number(item.nomorBaris) === Number(tombolAksi.dataset.row); });
-      if (!rapat) return;
-
-      if (tombolAksi.dataset.rapatAction === 'edit') {
-        document.getElementById('rapatNomorBaris').value = rapat.nomorBaris;
-        document.getElementById('rapatJenis').value = rapat.jenis;
-        document.getElementById('rapatNama').value = rapat.nama;
-        document.getElementById('rapatTanggal').value = rapat.tanggal;
-        document.getElementById('formRapat').hidden = false;
-        document.getElementById('formRapat').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        bukaPanelPesertaRapat(rapat, tombolAksi.dataset.rapatAction);
+  document.getElementById('fullscreenToggle')
+    .addEventListener('click', async function() {
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (error) {
+        tampilkanNotifikasi(
+          'Browser tidak mengizinkan mode layar penuh. Coba tekan F11.',
+          'error'
+        );
       }
-      return;
-    }
-
-    const tombolHadir = event.target.closest('[data-rapat-presensi]');
-    if (!tombolHadir) return;
-
-    const namaPeserta = tombolHadir.dataset.nama;
-    const status = tombolHadir.dataset.rapatPresensi;
-
-    mintaPin().then(function(pin) {
-      if (!pin) return;
-      google.script.run
-        .withSuccessHandler(function(pesan) {
-          tampilkanNotifikasi(pesan, 'success');
-          const rapat = daftarRapatTersimpan.find(function(item) { return Number(item.nomorBaris) === rapatTerpilih; });
-          if (rapat) {
-            const peserta = rapat.peserta.find(function(item) { return item.nama === namaPeserta; });
-            if (peserta) peserta.kehadiran = status;
-            bukaPanelPesertaRapat(rapat, 'absen');
-          }
-          muatAplikasi();
-        })
-        .withFailureHandler(function(error) { tampilkanNotifikasi(error && error.message ? error.message : String(error), 'error'); })
-        .tandaiKehadiranRapat(rapatTerpilih, namaPeserta, status, pin);
     });
-  });
 
-  document.getElementById('formAgenda').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form).entries());
-    const pesan = document.getElementById('pesanAgenda');
+  document.addEventListener(
+    'fullscreenchange',
+    perbaruiTombolLayarPenuh
+  );
 
-    pesan.className = 'message';
-    pesan.textContent = 'Meminta PIN admin…';
-
-    mintaPin().then(function(pin) {
-      if (!pin) { pesan.textContent = 'Penyimpanan dibatalkan.'; return; }
-      google.script.run
-        .withSuccessHandler(function(hasil) {
-          pesan.className = 'message success';
-          pesan.textContent = hasil || 'Agenda berhasil ditambahkan.';
-          form.reset();
-          document.getElementById('agendaTanggal').value = tanggalHariIniLokal();
-          muatAplikasi();
-        })
-        .withFailureHandler(function(error) {
-          pesan.className = 'message error';
-          pesan.textContent = error && error.message ? error.message : String(error);
-        })
-        .tambahAgenda(data, pin);
-    });
-  });
-
-  document.getElementById('tombolTambahPengumuman').addEventListener('click', function() {
-    const form = document.getElementById('formPengumuman');
-    barisPengumumanEdit = '';
-    document.getElementById('pengumumanNomorBaris').value = '';
-    form.reset();
-    form.querySelector('[type="submit"]').textContent = 'Simpan Pengumuman';
-    form.hidden = !form.hidden;
-    if (!form.hidden) {
-      document.getElementById('pengumumanTanggal').value = tanggalHariIniLokal();
-      document.getElementById('pengumumanIsi').focus();
-    }
-  });
-
-  document.getElementById('tombolEditPengumuman').addEventListener('click', function() {
-    const daftar = document.getElementById('daftarEditPengumuman');
-    daftar.hidden = !daftar.hidden;
-    this.textContent = daftar.hidden ? '✎ Edit Pengumuman' : 'Tutup Daftar Edit';
-  });
-
-  document.getElementById('daftarEditPengumuman').addEventListener('click', function(event) {
-    const tombol = event.target.closest('[data-edit-pengumuman]');
-    if (!tombol) return;
-
-    const nomor = Number(tombol.dataset.editPengumuman);
-    const item = semuaPengumumanTersimpan.find(function(pengumuman) { return Number(pengumuman.nomorBaris) === nomor; });
-    if (!item) return;
-
-    barisPengumumanEdit = String(nomor);
-    document.getElementById('pengumumanNomorBaris').value = barisPengumumanEdit;
-    document.getElementById('pengumumanTanggal').value = item.tanggal;
-    document.getElementById('pengumumanIsi').value = item.isi;
-    document.getElementById('pengumumanSasaran').value = item.sasaran || '';
-    document.getElementById('pengumumanKeterangan').value = item.keterangan || '';
-
-    document.querySelector('#formPengumuman [type="submit"]').textContent = 'Simpan Perubahan';
-    document.getElementById('formPengumuman').hidden = false;
-    document.getElementById('pesanPengumuman').textContent = 'Mengedit pengumuman tanggal ' + formatTanggal(item.tanggal) + '.';
-    document.getElementById('formPengumuman').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-
-  document.getElementById('batalPengumuman').addEventListener('click', function() {
-    const form = document.getElementById('formPengumuman');
-    form.hidden = true;
-    form.reset();
-    document.getElementById('pengumumanNomorBaris').value = '';
-    form.querySelector('[type="submit"]').textContent = 'Simpan Pengumuman';
-    document.getElementById('pesanPengumuman').textContent = '';
-    barisPengumumanEdit = '';
-  });
-
-  document.getElementById('formPengumuman').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const pesan = document.getElementById('pesanPengumuman');
-    const data = Object.fromEntries(new FormData(form).entries());
-
-    pesan.className = 'message';
-    pesan.textContent = 'Meminta PIN admin…';
-
-    mintaPin().then(function(pin) {
-      if (!pin) { pesan.textContent = 'Penyimpanan dibatalkan.'; return; }
-      const runner = google.script.run
-        .withSuccessHandler(function(hasil) {
-          tampilkanNotifikasi(hasil || 'Pengumuman berhasil disimpan.', 'success');
-          form.reset();
-          form.hidden = true;
-          barisPengumumanEdit = '';
-          document.getElementById('pengumumanNomorBaris').value = '';
-          form.querySelector('[type="submit"]').textContent = 'Simpan Pengumuman';
-          pesan.textContent = '';
-          muatAplikasi();
-        })
-        .withFailureHandler(function(error) {
-          const teks = error && error.message ? error.message : String(error);
-          pesan.className = 'message error';
-          pesan.textContent = teks;
-          tampilkanNotifikasi(teks, 'error');
-        });
-
-      if (barisPengumumanEdit) runner.ubahPengumuman(Number(barisPengumumanEdit), data, pin);
-      else runner.tambahPengumuman(data, pin);
-    });
-  });
-
-  document.getElementById('formTugas').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form).entries());
-    const pesan = document.getElementById('pesanTugas');
-
-    pesan.className = 'message';
-    pesan.textContent = 'Meminta PIN admin…';
-
-    mintaPin().then(function(pin) {
-      if (!pin) { pesan.textContent = 'Penyimpanan dibatalkan.'; return; }
-      google.script.run
-        .withSuccessHandler(function(hasil) {
-          pesan.className = 'message success';
-          pesan.textContent = hasil || 'Tugas berhasil ditambahkan.';
-          form.reset();
-          document.getElementById('tugasMulai').value = tanggalHariIniLokal();
-          document.getElementById('tugasSelesai').value = tanggalHariIniLokal();
-          muatAplikasi();
-        })
-        .withFailureHandler(function(error) {
-          pesan.className = 'message error';
-          pesan.textContent = error && error.message ? error.message : String(error);
-        })
-        .tambahTugas(data, pin);
-    });
-  });
-
-  document.getElementById('sidebarToggle').addEventListener('click', function() {
-    const hidden = document.body.classList.toggle('sidebar-hidden');
-    this.textContent = hidden ? '☰' : '×';
-    this.title = hidden ? 'Tampilkan menu' : 'Sembunyikan menu';
-  });
-
-  function aturTombolTema() {
-    const terang = document.body.dataset.theme === 'light';
-    document.getElementById('themeToggle').textContent = terang ? '🌙' : '☀️';
-  }
-
-  let temaTersimpan = 'dark';
-  try { temaTersimpan = localStorage.getItem('labsoma-theme') || 'dark'; } catch (e) {}
-
-  document.body.dataset.theme = temaTersimpan;
-  aturTombolTema();
-
-  document.getElementById('themeToggle').addEventListener('click', function() {
-    const temaBaru = document.body.dataset.theme === 'light' ? 'dark' : 'light';
-    document.body.dataset.theme = temaBaru;
-    try { localStorage.setItem('labsoma-theme', temaBaru); } catch (e) {}
-    aturTombolTema();
-  });
-
-  function perbaruiTombolLayarPenuh() {
-    const penuh = Boolean(document.fullscreenElement);
-    document.body.classList.toggle('dashboard-fullscreen', penuh);
-    document.getElementById('fullscreenToggle').textContent = penuh ? '↙' : '⛶';
-  }
-
-  document.getElementById('fullscreenToggle').addEventListener('click', async function() {
-    try {
-      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-      else await document.exitFullscreen();
-    } catch (error) {
-      tampilkanNotifikasi('Browser tidak mengizinkan mode layar penuh. Coba tekan F11.', 'error');
-    }
-  });
-
-  document.addEventListener('fullscreenchange', perbaruiTombolLayarPenuh);
-
-  document.getElementById('agendaTanggal').value = tanggalHariIniLokal();
-  document.getElementById('tugasMulai').value = tanggalHariIniLokal();
-  document.getElementById('tugasSelesai').value = tanggalHariIniLokal();
+  document.getElementById('agendaTanggal').value =
+    tanggalHariIniLokal();
+  document.getElementById('tugasMulai').value =
+    tanggalHariIniLokal();
+  document.getElementById('tugasSelesai').value =
+    tanggalHariIniLokal();
 
   perbaruiJamDashboard();
   perbaruiHeaderPengumuman();
@@ -2856,6 +3172,98 @@
   setInterval(perbaruiJamDashboard, 1000);
   setInterval(perbaruiHeaderPengumuman, 1000);
   setInterval(muatAplikasi, 60000);
+  // Listener Klik Aksi Edit & Hapus pada Tabel Tugas
+  document.addEventListener('click', function(event) {
+    const tombolEdit = event.target.closest('[data-action="editTugas"]');
+    const tombolHapus = event.target.closest('[data-action="hapusTugas"]');
+
+    // 1. JIKA TOMBOL EDIT DIKLIK
+    if (tombolEdit) {
+      const nomorBaris = Number(tombolEdit.dataset.row);
+      const semuaTugas = (dataAplikasiTersimpan || {}).semuaTugas || [];
+      const item = semuaTugas.find(function(x) { return Number(x.nomorBaris) === nomorBaris; });
+
+      if (!item) return;
+
+      // Mengisi nilai awal ke dalam Modal Popup Edit
+      document.getElementById('editTugasRow').value = nomorBaris;
+      document.getElementById('editTugasMulai').value = item.mulai || '';
+      document.getElementById('editTugasSelesai').value = item.selesai || '';
+
+      isiPilihanTugasEdit(
+        (dataAplikasiTersimpan || {}).dataAnggota || [],
+        (dataAplikasiTersimpan || {}).materiPelajaran || [],
+        item
+      );
+
+      // Tampilkan Modal Popup Edit
+      document.getElementById('editTugasOverlay').hidden = false;
+      return;
+    }
+
+    // 2. JIKA TOMBOL HAPUS DIKLIK
+    if (tombolHapus) {
+      const nomorBaris = Number(tombolHapus.dataset.row);
+      const semuaTugas = (dataAplikasiTersimpan || {}).semuaTugas || [];
+      const item = semuaTugas.find(function(x) { return Number(x.nomorBaris) === nomorBaris; });
+
+      const namaTugas = item ? item.tugas : 'tugas ini';
+
+      // Konfirmasi sebelum menghapus
+      if (confirm('Apakah Anda yakin ingin menghapus ' + namaTugas + '?')) {
+        mintaPin().then(function(pin) {
+          if (!pin) return;
+
+          google.script.run
+            .withSuccessHandler(function(pesan) {
+              tampilkanNotifikasi(pesan, 'success');
+              muatAplikasi(); // Muat ulang data agar tabel langsung diperbarui
+            })
+            .withFailureHandler(function(err) {
+              tampilkanNotifikasi(err && err.message ? err.message : String(err), 'error');
+            })
+            .hapusTugas(nomorBaris, pin);
+        });
+      }
+    }
+  });
+
+  // Tampilkan Antrean Tugas Koreksi Bersama dari Korektor 2
+  function tampilkanAntrianKoreksiBersama(daftar) {
+    const dataFiltered = saringDaftarTugas(daftar, 'kb');
+
+    const rows = (dataFiltered || []).map(function(item) {
+      return `
+        <tr>
+          <td>${aman(item.nama)}</td>
+          <td>${aman(item.tugas)}</td>
+          <td>${aman(item.kelas || '–')}</td>
+          <td>${aman(item.tingkat || '–')}</td>
+          <td>${formatTanggal(item.mulai)} – ${formatTanggal(item.selesai)}</td>
+          <td>${formatTanggal(item.tanggalK2)}</td>
+          <td><span class="badge waiting">Menunggu Koreksi Bersama</span></td>
+          <td>
+            <button class="button" data-action="selesaiBersama" data-row="${item.nomorBaris}">Tandai Selesai</button>
+            <button class="button secondary" data-action="kembaliKB" data-row="${item.nomorBaris}">Kembalikan</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    document.getElementById('isiKoreksiBersama').innerHTML = renderTabel(
+      [
+        'Anggota',
+        'Tugas/Soal',
+        'Kelas',
+        'Tingkat',
+        'Tanggal Tugas',
+        'Selesai Korektor 2',
+        'Status',
+        'Aksi'
+      ],
+      rows
+    );
+  }
 </script>
 </body>
 </html>
