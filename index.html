@@ -1422,6 +1422,15 @@
             <span class="message" id="pesanAgenda"></span>
           </div>
         </form>
+
+        <h2 class="section-title" style="margin-top: 28px;">Daftar Agenda</h2>
+        <div class="search-filters">
+          <input type="search" data-filter-group="agendaMenu" data-filter-key="agenda" placeholder="Cari agenda…" aria-label="Cari agenda">
+          <input type="search" data-filter-group="agendaMenu" data-filter-key="tempat" placeholder="Cari tempat…" aria-label="Cari tempat">
+          <input type="search" data-filter-group="agendaMenu" data-filter-key="penanggungJawab" placeholder="Cari penanggung jawab…" aria-label="Cari penanggung jawab">
+          <input type="date" data-filter-group="agendaMenu" data-filter-key="tanggal" aria-label="Filter tanggal agenda" title="Filter tanggal">
+        </div>
+        <div id="daftarAgendaMenu"></div>
       </section>
 
       <!-- MENU TAMBAH TUGAS -->
@@ -1536,6 +1545,67 @@
         </form>
       </div>
 
+      <!-- MODAL EDIT AGENDA -->
+      <div class="modal-overlay" id="editAgendaOverlay" hidden>
+        <form class="modal" id="formEditAgenda" style="width: min(550px, 100%);">
+          <h2>Edit Agenda</h2>
+          <input id="editAgendaRow" type="hidden">
+          <div class="form-grid" style="gap: 10px; margin-top: 10px;">
+            <div class="field"><label for="editAgendaTanggal">Tanggal</label><input id="editAgendaTanggal" name="tanggal" type="date" required></div>
+            <div class="field"><label for="editAgendaJam">Jam</label><input id="editAgendaJam" name="jam" type="time"></div>
+            <div class="field full"><label for="editAgendaNama">Nama agenda</label><input id="editAgendaNama" name="agenda" type="text" required></div>
+            <div class="field"><label for="editAgendaTempat">Tempat</label><input id="editAgendaTempat" name="tempat" type="text"></div>
+            <div class="field"><label for="editAgendaPJ">Penanggung jawab</label><input id="editAgendaPJ" name="penanggungJawab" type="text"></div>
+            <div class="field full"><label for="editAgendaKeterangan">Keterangan</label><textarea id="editAgendaKeterangan" name="keterangan"></textarea></div>
+          </div>
+          <div class="modal-actions" style="margin-top:16px;">
+            <button class="button secondary" type="button" data-tutup-modal="editAgendaOverlay">Batal</button>
+            <button class="button" type="submit">Simpan Perubahan</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- MODAL EDIT KEGIATAN KALENDER -->
+      <div class="modal-overlay" id="editKalenderOverlay" hidden>
+        <form class="modal" id="formEditKalender" style="width: min(550px, 100%);">
+          <h2>Edit Kegiatan Kalender</h2>
+          <input id="editKalenderRow" type="hidden">
+          <div class="form-grid" style="gap: 10px; margin-top: 10px;">
+            <div class="field"><label for="editKalenderMulai">Tanggal mulai</label><input id="editKalenderMulai" name="mulai" type="date" required></div>
+            <div class="field"><label for="editKalenderSelesai">Tanggal selesai</label><input id="editKalenderSelesai" name="selesai" type="date"></div>
+            <div class="field"><label for="editKalenderJam">Jam</label><input id="editKalenderJam" name="jam" type="time"></div>
+            <div class="field"><label for="editKalenderPIC">PIC</label><input id="editKalenderPIC" name="pic"></div>
+            <div class="field full"><label for="editKalenderKegiatan">Kegiatan</label><input id="editKalenderKegiatan" name="kegiatan" required></div>
+            <div class="field full"><label for="editKalenderKeterangan">Keterangan</label><textarea id="editKalenderKeterangan" name="keterangan" rows="3"></textarea></div>
+            <label class="field full"><span><input id="editKalenderAgenda" name="tampilkanSebagaiAgenda" type="checkbox" value="Ya" style="width:auto"> Tampilkan sebagai agenda dashboard</span></label>
+          </div>
+          <div class="modal-actions" style="margin-top:16px;">
+            <button class="button secondary" type="button" data-tutup-modal="editKalenderOverlay">Batal</button>
+            <button class="button" type="submit">Simpan Perubahan</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- MODAL EDIT TUGAS KOREKSI UJIAN -->
+      <div class="modal-overlay" id="editUjianOverlay" hidden>
+        <form class="modal" id="formEditUjian" style="width: min(550px, 100%);">
+          <h2>Edit Tugas Koreksi Ujian</h2>
+          <input id="editUjianRow" type="hidden">
+          <div class="form-grid" style="gap: 10px; margin-top: 10px;">
+            <div class="field full"><label for="editUjianNama">Nama anggota</label><input id="editUjianNama" name="nama" required></div>
+            <div class="field"><label for="editUjianMulai">Tanggal mulai</label><input id="editUjianMulai" name="mulai" type="date" required></div>
+            <div class="field"><label for="editUjianSelesai">Tanggal selesai</label><input id="editUjianSelesai" name="selesai" type="date" required></div>
+            <div class="field"><label for="editUjianKelas">Kelas</label><input id="editUjianKelas" name="kelas"></div>
+            <div class="field"><label for="editUjianTingkat">Tingkat</label><input id="editUjianTingkat" name="tingkat"></div>
+            <div class="field full"><label for="editUjianTugas">Tugas koreksi ujian</label><textarea id="editUjianTugas" name="tugas" required></textarea></div>
+          </div>
+          <div class="modal-actions" style="margin-top:16px;">
+            <button class="button secondary" type="button" data-tutup-modal="editUjianOverlay">Batal</button>
+            <button class="button" type="submit">Simpan Perubahan</button>
+          </div>
+        </form>
+      </div>
+
       <section class="page" id="page-catatan">
         <h1 class="page-heading">Catatan Rapat</h1>
         <form class="card form-card" id="formCatatan"><div class="form-grid">
@@ -1586,7 +1656,14 @@
           <div class="field"><label>Tingkat</label><input name="tingkat"></div>
           <div class="field full"><label>Tugas koreksi ujian</label><textarea name="tugas" required></textarea></div>
         </div><div class="form-actions"><button class="button">Tambah Tugas</button></div></form>
-        <h2 class="section-title">Daftar Tugas</h2><div id="daftarTugasUjian"></div>
+        <h2 class="section-title">Daftar Tugas</h2>
+        <div class="search-filters">
+          <input type="search" data-filter-group="ujian" data-filter-key="nama" placeholder="Cari nama anggota…">
+          <input type="search" data-filter-group="ujian" data-filter-key="tugas" placeholder="Cari tugas…">
+          <input type="search" data-filter-group="ujian" data-filter-key="kelas" placeholder="Cari kelas…">
+          <input type="search" data-filter-group="ujian" data-filter-key="tingkat" placeholder="Cari tingkat…">
+        </div>
+        <div id="daftarTugasUjian"></div>
       </section>
 
       <section class="page" id="page-rekapUjian">
@@ -1678,24 +1755,19 @@
   }
 
   function saringDaftarTugas(daftar, grup) {
-    const kolom = ['nama', 'tugas', 'kelas', 'tingkat', 'status'];
+    const inputs = Array.from(document.querySelectorAll('[data-filter-group="' + grup + '"]'));
 
     return (daftar || []).filter(function(item) {
-      return kolom.every(function(kunci) {
-        const input = document.querySelector(
-          '[data-filter-group="' + grup + '"][data-filter-key="' + kunci + '"]'
-        );
+      return inputs.every(function(input) {
+        const kata = input.value.trim().toLocaleLowerCase('id');
+        if (!kata) return true;
 
-        const kata = input
-          ? input.value.trim().toLocaleLowerCase('id')
-          : '';
-
-        const nilai = kunci === 'status'
+        const kunci = input.dataset.filterKey;
+        const nilai = (kunci === 'status' && grup === 'rekap')
           ? statusTampilanRekap(item)
           : item[kunci];
 
-        return !kata ||
-          String(nilai || '').toLocaleLowerCase('id').includes(kata);
+        return String(nilai || '').toLocaleLowerCase('id').includes(kata);
       });
     });
   }
@@ -1886,7 +1958,9 @@
     kegiatan: 'hubKegiatan'
   };
 
-  function bukaHalaman(nama) {
+  let riwayatOk = true;
+
+  function bukaHalaman(nama, dariRiwayat) {
     document.querySelectorAll('.page').forEach(function(page) {
       page.classList.toggle('active', page.id === 'page-' + nama);
     });
@@ -1906,7 +1980,47 @@
     kembali.dataset.tujuan = info.induk || '';
 
     window.scrollTo(0, 0);
+
+    // Riwayat browser: gestur geser/tombol kembali HP naik satu tingkat
+    if (!dariRiwayat) {
+      try {
+        if (info.induk) history.pushState({ h: nama }, '');
+        else history.replaceState({ h: nama }, '');
+      } catch (e) { riwayatOk = false; }
+    }
   }
+
+  window.addEventListener('popstate', function(event) {
+    const h = event.state && event.state.h;
+    bukaHalaman(PETA_HALAMAN[h] ? h : 'dashboard', true);
+  });
+
+  try { history.replaceState({ h: 'dashboard' }, ''); } catch (e) { riwayatOk = false; }
+
+  function kembaliHalaman() {
+    const tujuan = document.getElementById('tombolKembaliMobile').dataset.tujuan;
+    if (!tujuan) return;
+
+    const st = history.state && history.state.h;
+    if (riwayatOk && st && PETA_HALAMAN[st] && PETA_HALAMAN[st].induk) history.back();
+    else bukaHalaman(tujuan);
+  }
+
+  // Cadangan: geser dari tepi kiri layar jika riwayat browser tidak bisa dipakai
+  (function() {
+    let x0 = null, y0 = 0;
+    document.addEventListener('touchstart', function(e) {
+      const t = e.touches[0];
+      x0 = t.clientX < 30 ? t.clientX : null;
+      y0 = t.clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', function(e) {
+      if (x0 === null || riwayatOk) return;
+      const t = e.changedTouches[0];
+      if (t.clientX - x0 > 80 && Math.abs(t.clientY - y0) < 60) kembaliHalaman();
+      x0 = null;
+    }, { passive: true });
+  })();
 
   document.querySelectorAll('.nav-button').forEach(function(button) {
     button.addEventListener('click', function() {
@@ -1925,9 +2039,7 @@
     if (tujuan) bukaHalaman(tujuan.dataset.goto);
   });
 
-  document.getElementById('tombolKembaliMobile').addEventListener('click', function() {
-    if (this.dataset.tujuan) bukaHalaman(this.dataset.tujuan);
-  });
+  document.getElementById('tombolKembaliMobile').addEventListener('click', kembaliHalaman);
 
   document.querySelectorAll('.nav-group-toggle').forEach(function(button) {
     button.addEventListener('click', function() {
@@ -2220,11 +2332,12 @@
   function tampilkanModulTambahan(data) {
     const catatan=data.catatan||[], kalender=data.kalender||[], ujian=data.tugasKoreksiUjian||[], rekapUjian=data.rekapKoreksiUjian||[];
     document.getElementById('daftarCatatan').innerHTML=renderTabel(['NO','POKOK MASALAH','NOTULA RAPAT','PIC','KET'],catatan.map(function(x){return '<tr><td>'+aman(x.no)+'</td><td>'+aman(x.pokokMasalah)+'</td><td>'+aman(x.notula)+'</td><td>'+aman(x.pic)+'</td><td>'+aman(x.ket)+'</td></tr>';}));
-    document.getElementById('daftarKalender').innerHTML=renderTabel(['Tanggal','Jam','Kegiatan','PIC','Ditampilkan sebagai'],kalender.map(function(x){return '<tr><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+aman(x.jam||'—')+'</td><td>'+aman(x.kegiatan)+(x.keterangan?' · '+aman(x.keterangan):'')+'</td><td>'+aman(x.pic)+'</td><td>'+(x.sebagaiAgenda?'Agenda':'Kegiatan saja')+'</td></tr>';}));
+    document.getElementById('daftarKalender').innerHTML=renderTabel(['Tanggal','Jam','Kegiatan','PIC','Ditampilkan sebagai','Aksi'],kalender.map(function(x){return '<tr><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+aman(x.jam||'—')+'</td><td>'+aman(x.kegiatan)+(x.keterangan?' · '+aman(x.keterangan):'')+'</td><td>'+aman(x.pic)+'</td><td>'+(x.sebagaiAgenda?'Agenda':'Kegiatan saja')+'</td><td><button class="button secondary small" data-action="editKalender" data-row="'+x.nomorBaris+'">✎ Edit</button></td></tr>';}));
     gambarKalender(kalender);
     isiPilihanTugas(data.dataAnggota||[],data.materiPelajaran||[]);
     tampilkanAntrianKoreksiBersama(data.antrianKoreksiBersama||[]);
-    document.getElementById('daftarTugasUjian').innerHTML=renderTabel(['Anggota','Tugas','Kelas','Tingkat','Tanggal','Status','Aksi'],ujian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+aman(x.status)+'</td><td>'+(String(x.status||'').toLowerCase()==='selesai'?'Selesai':'<button class="button small" data-action="selesaiUjian" data-row="'+x.nomorBaris+'">Tandai Selesai</button>')+'</td></tr>';}));
+    dataUjianTersimpan = ujian;
+    tampilkanDaftarTugasUjian(ujian);
     document.getElementById('daftarRekapUjian').innerHTML=renderTabel(['Anggota','Tugas Koreksi Ujian','Kelas','Tingkat','Tanggal tugas','Selesai dikerjakan'],rekapUjian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+formatTanggal(x.tanggalSelesaiPengerjaan)+'</td></tr>';}));
   }
 
@@ -2363,6 +2476,9 @@
             <button class="button small ${selesai ? 'selected' : ''}"
               data-action="ubahStatus" data-status="Selesai"
               data-row="${item.nomorBaris}">Selesai</button>
+            <button class="button secondary small ${!selesai ? 'selected' : ''}"
+              data-action="ubahStatus" data-status="Belum"
+              data-row="${item.nomorBaris}">Belum</button>
           </td>
           <td>${aman(item.statusK1 || 'Menunggu')}</td>
           <td>${aman(item.statusK2 || 'Menunggu')}</td>
@@ -2628,6 +2744,7 @@
           data.pengumumanDashboard || data.pengumumanHariIni || [];
 
         tampilkanTugasDiMenuTambah(data.semuaTugas || []);
+        tampilkanDaftarAgendaMenu(data.semuaAgenda || []);
         tampilkanDashboard(data.dashboard);
         mulaiSlideAgendaDashboard();
         tampilkanPengumuman(data.pengumumanHariIni || []);
@@ -2663,6 +2780,8 @@
       if (grup === 'k2') tampilkanAntrianK2(dataK2Tersimpan);
       if (grup === 'kb') tampilkanAntrianKoreksiBersama(dataKBTersimpan);
       if (grup === 'tugasMenu') tampilkanTugasDiMenuTambah((dataAplikasiTersimpan || {}).semuaTugas || []);
+      if (grup === 'agendaMenu') tampilkanDaftarAgendaMenu((dataAplikasiTersimpan || {}).semuaAgenda || []);
+      if (grup === 'ujian') tampilkanDaftarTugasUjian(dataUjianTersimpan);
     };
 
     input.addEventListener('input', perbaruiFilter);
@@ -3311,6 +3430,125 @@
     'fullscreenchange',
     perbaruiTombolLayarPenuh
   );
+
+  /* ===== DAFTAR AGENDA, EDIT AGENDA / KALENDER / TUGAS UJIAN ===== */
+  let dataUjianTersimpan = [];
+
+  function tampilkanDaftarAgendaMenu(daftar) {
+    const data = saringDaftarTugas(daftar, 'agendaMenu');
+    const rows = data.map(function(x) {
+      return '<tr><td>' + formatTanggal(x.tanggal) + '</td><td>' + aman(x.jam || '—') +
+        '</td><td><strong>' + aman(x.agenda) + '</strong></td><td>' + aman(x.tempat || '–') +
+        '</td><td>' + aman(x.penanggungJawab || '–') + '</td><td>' + aman(x.keterangan || '–') +
+        '</td><td><button class="button secondary small" data-action="editAgenda" data-row="' +
+        x.nomorBaris + '">✎ Edit</button></td></tr>';
+    });
+    document.getElementById('daftarAgendaMenu').innerHTML = renderTabel(
+      ['Tanggal', 'Jam', 'Agenda', 'Tempat', 'Penanggung jawab', 'Keterangan', 'Aksi'], rows);
+  }
+
+  function tampilkanDaftarTugasUjian(daftar) {
+    const data = saringDaftarTugas(daftar, 'ujian');
+    const rows = data.map(function(x) {
+      const selesai = String(x.status || '').toLowerCase() === 'selesai';
+      return '<tr><td>' + aman(x.nama) + '</td><td>' + aman(x.tugas) + '</td><td>' + aman(x.kelas) +
+        '</td><td>' + aman(x.tingkat) + '</td><td>' + formatTanggal(x.mulai) + ' – ' + formatTanggal(x.selesai) +
+        '</td><td>' + aman(x.status) + '</td><td>' +
+        '<button class="button secondary small" data-action="editUjian" data-row="' + x.nomorBaris + '">✎ Edit</button> ' +
+        (selesai
+          ? '<button class="button secondary small" data-action="belumUjian" data-row="' + x.nomorBaris + '">Belum</button>'
+          : '<button class="button small" data-action="selesaiUjian" data-row="' + x.nomorBaris + '">Tandai Selesai</button>') +
+        '</td></tr>';
+    });
+    document.getElementById('daftarTugasUjian').innerHTML = renderTabel(
+      ['Anggota', 'Tugas', 'Kelas', 'Tingkat', 'Tanggal', 'Status', 'Aksi'], rows);
+  }
+
+  function isiNilai(id, nilai) { document.getElementById(id).value = nilai == null ? '' : nilai; }
+  function cariBaris(daftar, baris) {
+    return (daftar || []).find(function(x) { return Number(x.nomorBaris) === Number(baris); });
+  }
+
+  document.addEventListener('click', function(event) {
+    const tutup = event.target.closest('[data-tutup-modal]');
+    if (tutup) { document.getElementById(tutup.dataset.tutupModal).hidden = true; return; }
+
+    const tombol = event.target.closest('[data-action]');
+    if (!tombol) return;
+
+    const aksi = tombol.dataset.action;
+    const baris = Number(tombol.dataset.row);
+    const d = dataAplikasiTersimpan || {};
+
+    if (aksi === 'editAgenda') {
+      const x = cariBaris(d.semuaAgenda, baris);
+      if (!x) return;
+      isiNilai('editAgendaRow', baris);
+      isiNilai('editAgendaTanggal', x.tanggal);
+      isiNilai('editAgendaJam', x.jam);
+      isiNilai('editAgendaNama', x.agenda);
+      isiNilai('editAgendaTempat', x.tempat);
+      isiNilai('editAgendaPJ', x.penanggungJawab);
+      isiNilai('editAgendaKeterangan', x.keterangan);
+      document.getElementById('editAgendaOverlay').hidden = false;
+    } else if (aksi === 'editKalender') {
+      const x = cariBaris(d.kalender, baris);
+      if (!x) return;
+      isiNilai('editKalenderRow', baris);
+      isiNilai('editKalenderMulai', x.mulai);
+      isiNilai('editKalenderSelesai', x.selesai);
+      isiNilai('editKalenderJam', x.jam);
+      isiNilai('editKalenderPIC', x.pic);
+      isiNilai('editKalenderKegiatan', x.kegiatan);
+      isiNilai('editKalenderKeterangan', x.keterangan);
+      document.getElementById('editKalenderAgenda').checked = !!x.sebagaiAgenda;
+      document.getElementById('editKalenderOverlay').hidden = false;
+    } else if (aksi === 'editUjian') {
+      const x = cariBaris(dataUjianTersimpan, baris);
+      if (!x) return;
+      isiNilai('editUjianRow', baris);
+      isiNilai('editUjianNama', x.nama);
+      isiNilai('editUjianMulai', x.mulai);
+      isiNilai('editUjianSelesai', x.selesai);
+      isiNilai('editUjianKelas', x.kelas);
+      isiNilai('editUjianTingkat', x.tingkat);
+      isiNilai('editUjianTugas', x.tugas);
+      document.getElementById('editUjianOverlay').hidden = false;
+    } else if (aksi === 'belumUjian') {
+      jalankanAksi('ubahStatusKoreksiUjian', [baris, 'Belum']);
+    }
+  });
+
+  function sambungkanModalEdit(formId, overlayId, rowId, metode, olahData) {
+    document.getElementById(formId).addEventListener('submit', function(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const data = Object.fromEntries(new FormData(form).entries());
+      if (olahData) olahData(form, data);
+      const baris = Number(document.getElementById(rowId).value);
+
+      mintaPin().then(function(pin) {
+        if (!pin) return;
+        const runner = google.script.run
+          .withSuccessHandler(function(pesan) {
+            tampilkanNotifikasi(pesan || 'Perubahan berhasil disimpan.', 'success');
+            document.getElementById(overlayId).hidden = true;
+            muatAplikasi();
+          })
+          .withFailureHandler(function(error) {
+            const teks = error && error.message ? error.message : String(error);
+            if (teks.toLowerCase().indexOf('pin') !== -1) pinAdmin = '';
+            tampilkanNotifikasi(teks, 'error');
+          });
+        runner[metode](baris, data, pin);
+      });
+    });
+  }
+
+  sambungkanModalEdit('formEditAgenda', 'editAgendaOverlay', 'editAgendaRow', 'editAgenda');
+  sambungkanModalEdit('formEditUjian', 'editUjianOverlay', 'editUjianRow', 'editTugasKoreksiUjian');
+  sambungkanModalEdit('formEditKalender', 'editKalenderOverlay', 'editKalenderRow', 'editKegiatanKalender',
+    function(form, data) { data.tampilkanSebagaiAgenda = !!form.elements.tampilkanSebagaiAgenda.checked; });
 
   document.getElementById('agendaTanggal').value = tanggalHariIniLokal();
   document.getElementById('tugasMulai').value = tanggalHariIniLokal();
