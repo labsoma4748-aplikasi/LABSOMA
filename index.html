@@ -1669,6 +1669,12 @@
       <section class="page" id="page-rekapUjian">
         <h1 class="page-heading">Rekap Koreksi Hasil Ujian</h1>
         <p class="subheading">Rekap ini khusus untuk koreksi hasil ujian dan terpisah dari Pembuatan Soal.</p>
+        <div class="search-filters">
+          <input type="search" data-filter-group="rekapUjian" data-filter-key="nama" placeholder="Cari nama anggota…">
+          <input type="search" data-filter-group="rekapUjian" data-filter-key="tugas" placeholder="Cari tugas…">
+          <input type="search" data-filter-group="rekapUjian" data-filter-key="kelas" placeholder="Cari kelas…">
+          <input type="search" data-filter-group="rekapUjian" data-filter-key="tingkat" placeholder="Cari tingkat…">
+        </div>
         <div id="daftarRekapUjian"></div>
       </section>
     </main>
@@ -2338,7 +2344,8 @@
     tampilkanAntrianKoreksiBersama(data.antrianKoreksiBersama||[]);
     dataUjianTersimpan = ujian;
     tampilkanDaftarTugasUjian(ujian);
-    document.getElementById('daftarRekapUjian').innerHTML=renderTabel(['Anggota','Tugas Koreksi Ujian','Kelas','Tingkat','Tanggal tugas','Selesai dikerjakan'],rekapUjian.map(function(x){return '<tr><td>'+aman(x.nama)+'</td><td>'+aman(x.tugas)+'</td><td>'+aman(x.kelas)+'</td><td>'+aman(x.tingkat)+'</td><td>'+formatTanggal(x.mulai)+' – '+formatTanggal(x.selesai)+'</td><td>'+formatTanggal(x.tanggalSelesaiPengerjaan)+'</td></tr>';}));
+    dataRekapUjianTersimpan = rekapUjian;
+    tampilkanRekapUjian(rekapUjian);
   }
 
   /* DROPDOWN NAMA, TINGKAT, KELAS, DAN FAN (FORM TAMBAH TUGAS) */
@@ -2782,6 +2789,7 @@
       if (grup === 'tugasMenu') tampilkanTugasDiMenuTambah((dataAplikasiTersimpan || {}).semuaTugas || []);
       if (grup === 'agendaMenu') tampilkanDaftarAgendaMenu((dataAplikasiTersimpan || {}).semuaAgenda || []);
       if (grup === 'ujian') tampilkanDaftarTugasUjian(dataUjianTersimpan);
+      if (grup === 'rekapUjian') tampilkanRekapUjian(dataRekapUjianTersimpan);
     };
 
     input.addEventListener('input', perbaruiFilter);
@@ -3433,6 +3441,18 @@
 
   /* ===== DAFTAR AGENDA, EDIT AGENDA / KALENDER / TUGAS UJIAN ===== */
   let dataUjianTersimpan = [];
+  let dataRekapUjianTersimpan = [];
+
+  function tampilkanRekapUjian(daftar) {
+    const data = saringDaftarTugas(daftar, 'rekapUjian');
+    const rows = data.map(function(x) {
+      return '<tr><td>' + aman(x.nama) + '</td><td>' + aman(x.tugas) + '</td><td>' + aman(x.kelas) +
+        '</td><td>' + aman(x.tingkat) + '</td><td>' + formatTanggal(x.mulai) + ' – ' + formatTanggal(x.selesai) +
+        '</td><td>' + formatTanggal(x.tanggalSelesaiPengerjaan) + '</td></tr>';
+    });
+    document.getElementById('daftarRekapUjian').innerHTML = renderTabel(
+      ['Anggota', 'Tugas Koreksi Ujian', 'Kelas', 'Tingkat', 'Tanggal tugas', 'Selesai dikerjakan'], rows);
+  }
 
   function tampilkanDaftarAgendaMenu(daftar) {
     const data = saringDaftarTugas(daftar, 'agendaMenu');
