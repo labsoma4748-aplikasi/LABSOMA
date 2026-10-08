@@ -3,7 +3,7 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Labsoma PPS</title>
 
   <style>
@@ -930,19 +930,17 @@
 
     .rapat-roster-item input { width: auto; }
 
-    html,
-    body {
+    html, body {
       width: 100%;
       max-width: 100%;
-      overflow-x: hidden !important;
-      overscroll-behavior-x: none; /* Mencegah layar memantul saat digeser ke samping */
+      overflow-x: hidden;
     }
 
     .app {
       width: 100%;
-      max-width: 100%; /* Ganti 100vw jadi 100% */
+      max-width: 100vw;
       min-width: 0;
-      overflow-x: hidden;
+      overflow-x: clip;
     }
 
     .main {
@@ -1022,17 +1020,17 @@
     }
 
     @media (max-width: 700px) {
-      .app {
-        display: block;
-        width: 100%;
-        max-width: 100%; /* Ganti jadi 100% */
-      }
+      .app { display: block; width: 100%; max-width: 100vw; }
+
+      .sidebar { display: none !important; }
+      #sidebarToggle { display: none; }
 
       .main {
         width: 100%;
-        max-width: 100%; /* Ganti jadi 100% */
+        max-width: 100vw;
         min-width: 0;
         overflow-x: hidden;
+        padding: 12px 12px 92px;
       }
 
       .page,
@@ -1189,6 +1187,7 @@
         <button class="toolbar-button icon-only" id="sidebarToggle" type="button" title="Tampilkan/sembunyikan menu" aria-label="Tampilkan atau sembunyikan menu">☰</button>
         <button class="toolbar-button icon-only" id="themeToggle" type="button" title="Ganti tema terang/gelap" aria-label="Ganti tema">☀️</button>
         <button class="toolbar-button icon-only" id="fullscreenToggle" type="button" title="Layar penuh" aria-label="Layar penuh">⛶</button>
+        <button class="toolbar-button icon-only" id="logoutBtn" type="button" title="Keluar" aria-label="Keluar">⎋</button>
         <button class="toolbar-button" id="tombolKembaliMobile" type="button">‹ Kembali</button>
       </div>
 
@@ -1546,6 +1545,25 @@
         <div id="daftarTugasDalamMenu"></div>
       </section>
 
+      <div class="modal-overlay" id="loginOverlay" style="background:var(--latar); z-index:2000;" hidden>
+        <form class="modal" id="loginForm">
+          <h2>Masuk Labsoma PPS</h2>
+          <p>Gunakan akun yang didaftarkan oleh admin.</p>
+          <div class="field">
+            <label for="loginUser">Username</label>
+            <input id="loginUser" autocomplete="username" required>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label for="loginPass">Password</label>
+            <input id="loginPass" type="password" autocomplete="current-password" required>
+          </div>
+          <div class="modal-error" id="loginError"></div>
+          <div class="modal-actions">
+            <button class="button" type="submit" id="loginTombol">Masuk</button>
+          </div>
+        </form>
+      </div>
+
       <!-- MODAL POPUP EDIT TUGAS -->
       <div class="modal-overlay" id="editTugasOverlay" hidden>
         <form class="modal" id="formEditTugas" style="width: min(550px, 100%);">
@@ -1757,6 +1775,93 @@
   </div>
 
   <script>
+
+  const API_URL = "https://script.google.com/macros/s/AKfycbyWv87LQTDba_-Nb7-qG-QUgwXQwHNgeAe5S3k0Kb11VNZ5Edj7lhBbk8AkIO5Snf7b/exec";
+  const KUNCI_TOKEN = 'labsomaToken';
+
+  function ambilToken() { try { return localStorage.getItem(KUNCI_TOKEN) || ''; } catch (e) { return ''; } }
+  function simpanToken(t) {
+    try { if (t) localStorage.setItem(KUNCI_TOKEN, t); else localStorage.removeItem(KUNCI_TOKEN); } catch (e) {}
+  }
+
+  (function () {
+    function buat(ok, gagal) {
+      return new Proxy({}, {
+        get: function (_, nama) {
+          if (typeof nama !== 'string') return undefined;
+          if (nama === 'withSuccessHandler') return function (fn) { return buat(fn, gagal); };
+          if (nama === 'withFailureHandler') return function (fn) { return buat(ok, fn); };
+
+          return function () {
+            const args = Array.prototype.slice.call(arguments);
+            const token = ambilToken();
+
+            if (!token && nama !== 'login') { tampilkanLogin(); return; }
+
+            fetch(API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ action: nama, params: args, token: token })
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (h) {
+              if (!h.success) throw new Error(h.error || 'Gagal memproses permintaan');
+              return h.data;
+            })
+            .then(
+              function (data) { if (ok) ok(data); },
+              function (err) {
+                if (err && err.message === 'SESI_HABIS') {
+                  simpanToken('');
+                  tampilkanLogin();
+                  return;
+                }
+                if (gagal) gagal(err); else console.error(err);
+              }
+            );
+          };
+        }
+      });
+    }
+
+    window.google = { script: { run: buat(null, null) } };
+  })();
+
+  function tampilkanLogin() {
+    document.getElementById('loginOverlay').hidden = false;
+    setTimeout(function () { document.getElementById('loginUser').focus(); }, 50);
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const tombol = document.getElementById('loginTombol');
+    const pesan = document.getElementById('loginError');
+    const user = document.getElementById('loginUser').value;
+    const pass = document.getElementById('loginPass').value;
+
+    tombol.disabled = true; tombol.textContent = 'Memeriksa…'; pesan.textContent = '';
+
+    google.script.run
+      .withSuccessHandler(function (h) {
+        simpanToken(h.token);
+        document.getElementById('loginPass').value = '';
+        document.getElementById('loginOverlay').hidden = true;
+        tombol.disabled = false; tombol.textContent = 'Masuk';
+        tampilkanNotifikasi('Selamat datang, ' + h.nama, 'success');
+        muatAplikasi();
+      })
+      .withFailureHandler(function (er) {
+        tombol.disabled = false; tombol.textContent = 'Masuk';
+        pesan.textContent = er && er.message ? er.message : String(er);
+      })
+      .login(user, pass);
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function () {
+    const selesai = function () { simpanToken(''); location.reload(); };
+    google.script.run.withSuccessHandler(selesai).withFailureHandler(selesai).logout();
+  });
+
   const SELISIH_ISTIWAK_MENIT = 39;
   const JUMLAH_ANGGOTA_PER_HALAMAN = 5;
   const INTERVAL_GANTI_ANGGOTA = 5000;
@@ -2848,7 +2953,8 @@
   });
 
   function mintaPin() {
-    if (pinAdmin) return Promise.resolve(pinAdmin);
+    return Promise.resolve('sesi');
+  }
 
     document.getElementById('pinOverlay').hidden = false;
     document.getElementById('pinInput').focus();
